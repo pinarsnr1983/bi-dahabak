@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Bi'DahaBak - Akıllı Yanlış Defteri & Deneme Takibi</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 4px; }
+    .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  </style>
+
+  <!-- Prevent FOUC (Flash of Unstyled Content) for Dark Theme -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('bidahabak_theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200">
+
+  <!-- TOP HEADER / NAVIGATION -->
+  <header id="mainHeader" class="bg-white/95 dark:bg-slate-800/95 backdrop-blur border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Brand Name -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-brand-500/20">
+          <i class="fa-solid fa-rotate-left"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-slate-900 dark:text-white text-lg sm:text-xl leading-tight tracking-tight">Bi'DahaBak</h1>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Akıllı Yanlış Defteri & Sınav Takibi</p>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-700/60 p-1 rounded-xl">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 shadow-sm">
+          <i class="fa-solid fa-chart-pie mr-1.5"></i>Özet & Analiz
+        </button>
+        <button onclick="switchTab('addQuestion')" id="nav-addQuestion" class="px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-600/50">
+          <i class="fa-solid fa-plus-circle mr-1.5"></i>Soru Ekle
+        </button>
+        <button onclick="switchTab('archive')" id="nav-archive" class="px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-600/50">
+          <i class="fa-solid fa-book-open mr-1.5"></i>Yanlış Defteri
+        </button>
+        <button onclick="switchTab('exams')" id="nav-exams" class="px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-600/50">
+          <i class="fa-solid fa-graduation-cap mr-1.5"></i>Deneme Takibi
+        </button>
+        <button onclick="switchTab('settings')" id="nav-settings" class="px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-600/50">
+          <i class="fa-solid fa-gear mr-1.5"></i>Ayarlar
+        </button>
+      </nav>
+
+      <!-- Quick Controls & User Pill -->
+      <div class="flex items-center gap-2">
+        <!-- Quick Theme Toggle -->
+        <button onclick="toggleTheme()" title="Tema Değiştir" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center transition border border-slate-200 dark:border-slate-600">
+          <i id="headerThemeIcon" class="fa-solid fa-moon text-sm"></i>
+        </button>
+
+        <!-- User Info Pill -->
+        <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-700/80 py-1 px-3 rounded-full border border-slate-200 dark:border-slate-600">
+          <div id="userAvatarPill" class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center uppercase">U</div>
+          <span id="userNameDisplay" class="text-xs font-semibold text-slate-700 dark:text-slate-200 max-w-[90px] sm:max-w-[130px] truncate">Öğrenci</span>
+        </div>
+
+        <!-- Logout Button -->
+        <button onclick="handleLogout()" title="Çıkış Yap" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-red-50 dark:hover:bg-red-950/40 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 flex items-center justify-center transition border border-slate-200 dark:border-slate-600">
+          <i class="fa-solid fa-right-from-bracket text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Bar (Bottom Dock) -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur border-t border-slate-200 dark:border-slate-700 px-2 py-1 flex justify-around pb-safe">
+      <button onclick="switchTab('dashboard')" id="mnav-dashboard" class="flex-1 py-1.5 text-center text-xs font-semibold text-brand-600 dark:text-brand-400">
+        <i class="fa-solid fa-chart-pie block text-base mb-0.5 mx-auto"></i>Özet
+      </button>
+      <button onclick="switchTab('addQuestion')" id="mnav-addQuestion" class="flex-1 py-1.5 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+        <i class="fa-solid fa-plus-circle block text-base mb-0.5 mx-auto"></i>Soru Ekle
+      </button>
+      <button onclick="switchTab('archive')" id="mnav-archive" class="flex-1 py-1.5 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+        <i class="fa-solid fa-book-open block text-base mb-0.5 mx-auto"></i>Defter
+      </button>
+      <button onclick="switchTab('exams')" id="mnav-exams" class="flex-1 py-1.5 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+        <i class="fa-solid fa-graduation-cap block text-base mb-0.5 mx-auto"></i>Denemeler
+      </button>
+      <button onclick="switchTab('settings')" id="mnav-settings" class="flex-1 py-1.5 text-center text-xs font-medium text-slate-500 dark:text-slate-400">
+        <i class="fa-solid fa-gear block text-base mb-0.5 mx-auto"></i>Ayarlar
+      </button>
+    </div>
+  </header>
+
+  <!-- AUTHENTICATION SCREEN -->
+  <main id="authScreen" class="flex-1 flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-900 transition-colors">
+    <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 relative overflow-hidden">
+      <!-- Decorative Backdrop Glow -->
+      <div class="absolute -top-16 -right-16 w-44 h-44 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- App Logo & Intro -->
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-gradient-to-tr from-brand-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black mx-auto mb-3 shadow-lg shadow-brand-500/30">
+          <i class="fa-solid fa-rotate-left"></i>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Bi'DahaBak</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Yanlış yaptığın soruları biriktir, tekrar et ve sınav netlerini yükselt!</p>
+      </div>
+
+      <!-- Auth Toggle Tabs (Giriş Yap / Kaydol) -->
+      <div class="flex bg-slate-100 dark:bg-slate-700/60 p-1 rounded-xl mb-5">
+        <button id="authTabLoginBtn" onclick="toggleAuthMode('login')" class="flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm">Giriş Yap</button>
+        <button id="authTabRegisterBtn" onclick="toggleAuthMode('register')" class="flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">Hesap Oluştur</button>
+      </div>
+
+      <!-- Auth Error / Notice Toast -->
+      <div id="authNotice" class="hidden mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
+        <i class="fa-solid fa-circle-info text-amber-600 dark:text-amber-400 text-sm"></i>
+        <span id="authNoticeText">Lütfen bilgilerinizi giriniz.</span>
+      </div>
+
+      <!-- Main Auth Form -->
+      <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        
+        <!-- Display Name (Register Mode Only) -->
+        <div id="fieldNameGroup" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Ad Soyad / Rumuz *</label>
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="authDisplayName" placeholder="Örn: Aren Yılmaz" class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none transition" />
+          </div>
+        </div>
+
+        <!-- Email Address -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">E-Posta Adresi *</label>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="email" id="authEmail" placeholder="ogrenci@example.com" class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none transition" required />
+          </div>
+        </div>
+
+        <!-- Password with Eye Toggle -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Şifre *</label>
+          <div class="relative">
+            <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="password" id="authPassword" oninput="checkPasswordStrength(this.value)" placeholder="••••••••" class="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none transition" required minlength="6" />
+            <button type="button" onclick="togglePasswordVisibility('authPassword', 'authPasswordEye')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+              <i id="authPasswordEye" class="fa-solid fa-eye text-xs"></i>
+            </button>
+          </div>
+          <!-- Password Strength Meter (Register Mode Only) -->
+          <div id="passwordStrengthBar" class="hidden mt-2 space-y-1">
+            <div class="flex h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div id="strengthIndicator" class="h-full w-0 bg-rose-500 transition-all duration-300"></div>
+            </div>
+            <p id="strengthLabel" class="text-[10px] text-slate-400 font-medium text-right">Zayıf Şifre</p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btnAuthSubmit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> <span id="btnAuthText">Giriş Yap</span>
+        </button>
+      </form>
+
+      <!-- Quick Guest Session -->
+      <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-700/60 text-center">
+        <button onclick="handleGuestLogin()" class="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+          Hesapsız Hızlı Misafir Girişi Yap &rarr;
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- MAIN APPLICATION CONTENT -->
+  <main id="appContent" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 hidden mb-16 md:mb-0">
+    
+    <!-- App Notification Banner -->
+    <div id="appToast" class="hidden mb-6 p-4 rounded-2xl bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 text-brand-900 dark:text-brand-200 text-xs flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-2.5">
+        <i class="fa-solid fa-circle-check text-brand-600 dark:text-brand-400 text-base"></i>
+        <span id="appToastMessage">İşlem başarıyla gerçekleştirildi.</span>
+      </div>
+      <button onclick="document.getElementById('appToast').classList.add('hidden')" class="text-brand-400 hover:text-brand-700 dark:hover:text-brand-200">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- TAB 1: ÖZET & ANALİZ (DASHBOARD) -->
+    <section id="tab-dashboard" class="space-y-6">
+      
+      <!-- Summary Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Card 1: Wrong Questions -->
+        <div class="bg-gradient-to-br from-brand-600 to-indigo-700 rounded-2xl p-5 text-white shadow-lg shadow-brand-500/10 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-brand-100 uppercase tracking-wider">Kayıtlı Yanlış Soru</span>
+            <div class="text-3xl font-black mt-1" id="statTotalQuestions">0</div>
+          </div>
+          <div class="text-xs text-brand-100/90 mt-4 flex items-center justify-between border-t border-white/10 pt-2">
+            <span><i class="fa-solid fa-check-double mr-1"></i> Öğrenilen: <strong id="statLearnedQuestions">0</strong></span>
+            <span><i class="fa-solid fa-hourglass-half mr-1"></i> Kalan: <strong id="statUnlearnedQuestions">0</strong></span>
+          </div>
+        </div>
+
+        <!-- Card 2: Exams Count -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Kayıtlı Deneme</span>
+            <div class="text-3xl font-black text-slate-800 dark:text-white mt-1" id="statTotalExams">0</div>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-4 flex items-center gap-1.5 border-t border-slate-100 dark:border-slate-700/60 pt-2">
+            <i class="fa-solid fa-calendar-day text-brand-500"></i> Son Sınav: <span id="statLastExamDate" class="font-semibold text-slate-700 dark:text-slate-300">-</span>
+          </p>
+        </div>
+
+        <!-- Card 3: Latest Score & Percentile -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">Son Puan / Yüzdelik</span>
+            <div class="text-3xl font-black text-slate-800 dark:text-white mt-1" id="statLatestScore">-</div>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-4 flex items-center gap-1.5 border-t border-slate-100 dark:border-slate-700/60 pt-2">
+            <i class="fa-solid fa-chart-line text-indigo-500"></i> Yüzdelik Dilim: <span id="statLatestPercentile" class="font-bold text-slate-700 dark:text-slate-200">-</span>
+          </p>
+        </div>
+
+        <!-- Card 4: Top Error Subject -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">En Çok Hata Yapılan Ders</span>
+            <div class="text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-2 truncate" id="statTopErrorSubject">Henüz Veri Yok</div>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-4 flex items-center gap-1.5 border-t border-slate-100 dark:border-slate-700/60 pt-2">
+            <i class="fa-solid fa-bullseye text-amber-500"></i> Odaklanman gereken alan!
+          </p>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Exam Score Progress Line Chart -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-brand-600 dark:text-brand-400"></i> Deneme Puan Gelişimi
+            </h3>
+            <span class="text-[11px] text-slate-400 font-medium">Zaman Çizelgesi</span>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="chartExamProgress"></canvas>
+            <div id="chartExamEmpty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white/95 dark:bg-slate-800/95 rounded-xl">
+              <i class="fa-solid fa-graduation-cap text-4xl mb-2 text-slate-300 dark:text-slate-600"></i>
+              <p class="text-xs font-medium">Henüz kaydedilmiş bir deneme bulunmuyor.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Errors Doughnut Chart -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-indigo-600 dark:text-indigo-400"></i> Derslere Göre Hata Dağılımı
+            </h3>
+            <span class="text-[11px] text-slate-400 font-medium">Yanlış Defteri</span>
+          </div>
+          <div class="relative h-64 w-full">
+            <canvas id="chartSubjectErrors"></canvas>
+            <div id="chartSubjectEmpty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white/95 dark:bg-slate-800/95 rounded-xl">
+              <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300 dark:text-slate-600"></i>
+              <p class="text-xs font-medium">Henüz kayıtlı yanlış soru bulunmuyor.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: YANLIŞ SORU EKLE -->
+    <section id="tab-addQuestion" class="hidden max-w-3xl mx-auto">
+      <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div class="mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+          <h2 class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-camera-retro text-brand-600 dark:text-brand-400"></i> Yeni Yanlış Soru Ekle
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Soru fotoğrafını çekin veya seçin, hata nedeninizi ve çözüm notlarınızı kaydedin.</p>
+        </div>
+
+        <form onsubmit="handleSaveQuestion(event)" class="space-y-5">
+          
+          <!-- Subject & Error Reason Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Ders Seçin *</label>
+              <select id="qSubject" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none" required>
+                <option value="">-- Ders Seçiniz --</option>
+                <option value="Matematik">Matematik</option>
+                <option value="Türkçe">Türkçe</option>
+                <option value="Edebiyat">Edebiyat</option>
+                <option value="Fen Bilimleri">Fen Bilimleri</option>
+                <option value="Fizik">Fizik</option>
+                <option value="Kimya">Kimya</option>
+                <option value="Biyoloji">Biyoloji</option>
+                <option value="Sosyal Bilgiler">Sosyal Bilgiler</option>
+                <option value="Tarih">Tarih</option>
+                <option value="Coğrafya">Coğrafya</option>
+                <option value="Din Kültürü">Din Kültürü</option>
+                <option value="İngilizce">İngilizce</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Hata Nedeni *</label>
+              <select id="qReason" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none" required>
+                <option value="">-- Nedeni Seçiniz --</option>
+                <option value="Dikkat Hatası">Dikkat Hatası</option>
+                <option value="İşlem Hatası">İşlem Hatası</option>
+                <option value="Bilgi Eksikliği">Bilgi Eksikliği</option>
+                <option value="Süre Yetmedi">Süre Yetmedi</option>
+                <option value="Soru Kökünü Yanlış Okuma">Soru Kökünü Yanlış Okuma</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Topic & Correct Answer -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Konu Adı (Opsiyonel)</label>
+              <input type="text" id="qTopic" placeholder="Örn: Üslü İfadeler, Paragraf" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Doğru Cevap Seçeneği</label>
+              <input type="text" id="qCorrectAnswer" placeholder="Örn: C Şıkkı veya 42" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none" />
+            </div>
+          </div>
+
+          <!-- Photo Input Buttons & Canvas Compression -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Soru Fotoğrafı *</label>
+            
+            <!-- Hidden Dual File Inputs -->
+            <input type="file" id="qCamInput" accept="image/*" capture="environment" class="hidden" onchange="handleQuestionImageSelect(event)" />
+            <input type="file" id="qGalleryInput" accept="image/*" class="hidden" onchange="handleQuestionImageSelect(event)" />
+
+            <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-6 text-center hover:bg-slate-50 dark:hover:bg-slate-700/30 transition relative">
+              
+              <!-- Placeholder State -->
+              <div id="uploadPlaceholder" class="space-y-3">
+                <div class="w-12 h-12 bg-brand-50 dark:bg-slate-700 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 mx-auto text-xl">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Fotoğraf Ekleme Seçenekleri</p>
+                <div class="flex flex-wrap justify-center gap-3">
+                  <button type="button" onclick="document.getElementById('qCamInput').click()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-camera"></i> Kamerayla Çek
+                  </button>
+                  <button type="button" onclick="document.getElementById('qGalleryInput').click()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl border border-slate-300 dark:border-slate-600 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-images"></i> Galeriden Seç
+                  </button>
+                </div>
+                <p class="text-[10px] text-slate-400">Otomatik hafifletme ve sıkıştırma aktiftir.</p>
+              </div>
+
+              <!-- Compressed Preview State -->
+              <div id="uploadPreviewContainer" class="hidden relative inline-block">
+                <img id="uploadPreviewImg" src="" class="max-h-72 rounded-xl border border-slate-200 dark:border-slate-600 shadow-sm mx-auto object-contain" />
+                <button type="button" onclick="clearQuestionImage()" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-700 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md transition">
+                  <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Solution Notes -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Çözüm / Notlar / Püf Noktaları</label>
+            <textarea id="qNotes" rows="3" placeholder="Bu sorudaki püf nokta neydi? Hangi formülü unuttum?" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btnSaveQuestion" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-brand-500/25 transition active:scale-[0.99] flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Soruyu Yanlış Defterine Kaydet
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 3: YANLIŞ DEFTERİM (ARCHIVE) -->
+    <section id="tab-archive" class="hidden space-y-6">
+      
+      <!-- Search & Filters Bar -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+        
+        <!-- Search Input -->
+        <div class="w-full md:w-1/3 relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+          <input type="text" id="archiveSearch" oninput="renderQuestionsArchive()" placeholder="Konu veya notlarda ara..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none" />
+        </div>
+
+        <!-- Filter Dropdowns -->
+        <div class="w-full md:w-auto flex flex-wrap sm:flex-nowrap gap-2">
+          <select id="filterSubject" onchange="renderQuestionsArchive()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="ALL">Tüm Dersler</option>
+            <option value="Matematik">Matematik</option>
+            <option value="Türkçe">Türkçe</option>
+            <option value="Edebiyat">Edebiyat</option>
+            <option value="Fen Bilimleri">Fen Bilimleri</option>
+            <option value="Fizik">Fizik</option>
+            <option value="Kimya">Kimya</option>
+            <option value="Biyoloji">Biyoloji</option>
+            <option value="Sosyal Bilgiler">Sosyal Bilgiler</option>
+            <option value="Tarih">Tarih</option>
+            <option value="Coğrafya">Coğrafya</option>
+            <option value="Din Kültürü">Din Kültürü</option>
+            <option value="İngilizce">İngilizce</option>
+          </select>
+
+          <select id="filterReason" onchange="renderQuestionsArchive()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="ALL">Tüm Hata Nedenleri</option>
+            <option value="Dikkat Hatası">Dikkat Hatası</option>
+            <option value="İşlem Hatası">İşlem Hatası</option>
+            <option value="Bilgi Eksikliği">Bilgi Eksikliği</option>
+            <option value="Süre Yetmedi">Süre Yetmedi</option>
+            <option value="Soru Kökünü Yanlış Okuma">Soru Kökünü Yanlış Okuma</option>
+          </select>
+
+          <select id="filterStatus" onchange="renderQuestionsArchive()" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="ALL">Tüm Durumlar</option>
+            <option value="UNLEARNED">Henüz Öğrenilmedi</option>
+            <option value="LEARNED">Öğrendim</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Question Cards Grid -->
+      <div id="questionsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Dynamic Question Cards -->
+      </div>
+
+      <!-- Archive Empty State -->
+      <div id="questionsEmptyState" class="hidden text-center py-16 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-8">
+        <div class="w-20 h-20 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 mx-auto text-3xl mb-3">
+          <i class="fa-solid fa-folder-open"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 dark:text-white text-base">Kayıtlı Soru Bulunamadı</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1">Filtrelerinizi değiştirin veya yeni bir yanlış soru ekleyin.</p>
+        <button onclick="switchTab('addQuestion')" class="mt-4 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl transition">
+          + Yanlış Soru Ekle
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 4: DENEME TAKİBİ -->
+    <section id="tab-exams" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Deneme Sınavı Takibi</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Girdiğiniz LGS, TYT, AYT ve diğer denemelerin puan ve yüzdelik dilimlerini kaydedin.</p>
+        </div>
+        <button onclick="openExamModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-500/20 transition flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Yeni Deneme Ekle
+        </button>
+      </div>
+
+      <!-- Exam List Table -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">
+                <th class="p-4">Sınav Adı / Tür</th>
+                <th class="p-4">Tarih</th>
+                <th class="p-4">Puan</th>
+                <th class="p-4">Yüzdelik Dilim</th>
+                <th class="p-4">Toplam Net</th>
+                <th class="p-4">Gelişim</th>
+                <th class="p-4 text-right">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="examTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/60 text-xs">
+              <!-- Dynamic Exam Rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Exams Empty State -->
+        <div id="examsEmptyState" class="hidden text-center py-16 p-6">
+          <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 mx-auto text-2xl mb-2">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <p class="text-sm font-bold text-slate-800 dark:text-white">Henüz Kaydedilmiş Deneme Yok</p>
+          <p class="text-xs text-slate-400 mt-1">Grafiklerinizde ilerlemenizi görmek için ilk denemenizi ekleyin.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: AYARLAR (SETTINGS) -->
+    <section id="tab-settings" class="hidden max-w-3xl mx-auto space-y-6">
+      
+      <!-- Creator / Developers Card -->
+      <div class="bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 rounded-3xl p-6 text-white shadow-xl flex items-center justify-between relative overflow-hidden">
+        <div class="space-y-1 relative z-10">
+          <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur rounded-full text-[10px] font-black uppercase tracking-widest text-white mb-1">
+            Geliştirici & Tasarım
+          </span>
+          <h3 class="text-2xl font-black tracking-tight">Bi'DahaBak App</h3>
+          <p class="text-xs text-brand-100 font-medium">Yapımcılar: <strong class="text-white font-extrabold underline decoration-brand-300">Aren</strong></p>
+        </div>
+        <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-3xl font-black text-white relative z-10">
+          <i class="fa-solid fa-code"></i>
+        </div>
+      </div>
+
+      <!-- App Theme Settings -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-palette text-brand-600 dark:text-brand-400"></i> Görünüm & Tema Seçeneği
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="setTheme('light')" id="themeBtnLight" class="p-4 rounded-xl border-2 transition flex items-center justify-between border-slate-200 dark:border-slate-700 bg-white text-slate-800">
+            <span class="text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-sun text-amber-500"></i> Açık Tema</span>
+            <i class="fa-solid fa-circle-check text-brand-600 hidden" id="themeIconLightCheck"></i>
+          </button>
+          
+          <button onclick="setTheme('dark')" id="themeBtnDark" class="p-4 rounded-xl border-2 transition flex items-center justify-between border-slate-700 bg-slate-900 text-white">
+            <span class="text-xs font-bold flex items-center gap-2"><i class="fa-solid fa-moon text-amber-400"></i> Koyu Tema</span>
+            <i class="fa-solid fa-circle-check text-brand-400 hidden" id="themeIconDarkCheck"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Account & Security Section -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-user-shield text-indigo-600 dark:text-indigo-400"></i> Hesap Güvenliği
+        </h3>
+
+        <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
+          <div>
+            <p id="settingsUserDisplay" class="text-xs font-bold text-slate-800 dark:text-white">Öğrenci</p>
+            <p id="settingsEmailDisplay" class="text-[11px] text-slate-500 dark:text-slate-400">ogrenci@example.com</p>
+          </div>
+          <button onclick="openChangePasswordModal()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-white font-bold text-xs rounded-xl transition">
+            Şifre Değiştir
+          </button>
+        </div>
+      </div>
+
+      <!-- Data Backup & Transfer Section -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-database text-emerald-600 dark:text-emerald-400"></i> Veri Yedeği Al & Yükle
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Sorularınızı ve deneme netlerinizi cihazınız dışına aktarabilir veya yedekten geri yükleyebilirsiniz.</p>
+
+        <div class="flex flex-wrap gap-3">
+          <button onclick="exportUserDataJSON()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-download"></i> Yedeği İndir (JSON)
+          </button>
+          
+          <button onclick="document.getElementById('importJSONInput').click()" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl border border-slate-300 dark:border-slate-600 transition flex items-center gap-2">
+            <i class="fa-solid fa-upload"></i> Yedek Yükle (JSON)
+          </button>
+          <input type="file" id="importJSONInput" accept=".json" class="hidden" onchange="importUserDataJSON(event)" />
+        </div>
+      </div>
+
+      <!-- Danger Zone / Data Reset -->
+      <div class="bg-rose-50 dark:bg-rose-950/30 rounded-2xl p-6 border border-rose-200 dark:border-rose-900 shadow-sm space-y-3">
+        <h3 class="font-bold text-rose-800 dark:text-rose-300 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation"></i> Tehlikeli Bölge
+        </h3>
+        <p class="text-xs text-rose-700 dark:text-rose-400">Hesabınıza ait tüm soru ve deneme verilerini kalıcı olarak siler.</p>
+        <button onclick="openResetDataModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow transition">
+          Tüm Verilerimi Sıfırla
+        </button>
+      </div>
+
+      <!-- App Footer -->
+      <div class="text-center pt-4 text-xs text-slate-400">
+        <p>Bi'DahaBak v2.0 &bull; Akıllı Çalışma Platformu</p>
+        <p class="mt-1 text-[11px]">Yapımcılar: Aren</p>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- CUSTOM MODAL: LIGHTBOX -->
+  <div id="lightboxModal" class="fixed inset-0 z-50 bg-black/85 hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeLightbox()">
+    <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+      <img id="lightboxImg" src="" class="max-h-[75vh] max-w-full rounded-2xl object-contain shadow-2xl border border-white/10" />
+      <div id="lightboxDetails" class="mt-3 text-center text-white text-xs bg-slate-900/80 px-4 py-2 rounded-xl backdrop-blur">
+        <!-- Details injected dynamically -->
+      </div>
+      <button onclick="closeLightbox()" class="absolute -top-4 -right-4 bg-white text-slate-900 w-9 h-9 rounded-full flex items-center justify-center font-bold shadow-lg hover:bg-slate-200 transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODAL: ADD EXAM -->
+  <div id="examModal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4 my-8">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h3 class="font-extrabold text-slate-900 dark:text-white text-base">Yeni Deneme Sınavı Ekle</h3>
+        <button onclick="closeExamModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveExam(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Sınav Türü *</label>
+          <select id="examType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" required>
+            <option value="LGS">LGS Denemesi</option>
+            <option value="TYT">TYT Denemesi</option>
+            <option value="AYT">AYT Denemesi</option>
+            <option value="YDT">YDT Denemesi</option>
+            <option value="Genel">Genel Deneme</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Deneme Adı / Yayın *</label>
+          <input type="text" id="examName" placeholder="Örn: Özdebir 1. Türkiye Geneli" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" required />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tarih *</label>
+            <input type="date" id="examDate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" required />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Toplam Puan *</label>
+            <input type="number" step="0.01" id="examScore" placeholder="Örn: 425.5" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" required />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Yüzdelik Dilim (%) *</label>
+            <input type="number" step="0.01" id="examPercentile" placeholder="Örn: 2.15" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" required />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Toplam Net (Opsiyonel)</label>
+            <input type="number" step="0.25" id="examNet" placeholder="Örn: 82.5" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="closeExamModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-200">İptal</button>
+          <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODAL: CHANGE PASSWORD -->
+  <div id="changePasswordModal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Şifre Değiştir</h3>
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleChangePasswordSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mevcut Şifreniz</label>
+          <input type="password" id="cpOldPassword" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Yeni Şifreniz (En az 6 karakter)</label>
+          <input type="password" id="cpNewPassword" minlength="6" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeChangePasswordModal()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">İptal</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow">Güncelle</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODAL: CONFIRM DIALOG (Replaces alert/confirm) -->
+  <div id="customConfirmModal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-700 shadow-2xl text-center space-y-4">
+      <div class="w-14 h-14 bg-amber-100 dark:bg-amber-950/60 rounded-full flex items-center justify-center text-amber-600 dark:text-amber-400 text-2xl mx-auto">
+        <i class="fa-solid fa-circle-question"></i>
+      </div>
+      <h3 id="confirmModalTitle" class="font-extrabold text-slate-900 dark:text-white text-base">Emin misiniz?</h3>
+      <p id="confirmModalMessage" class="text-xs text-slate-500 dark:text-slate-400">Bu işlemi geri alamazsınız.</p>
+      
+      <div class="flex justify-center gap-3 pt-2">
+        <button id="btnConfirmCancel" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-200">İptal</button>
+        <button id="btnConfirmOk" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow">Evet, Devam Et</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODAL: DATA RESET DOUBLE CONFIRMATION -->
+  <div id="resetDataModal" class="fixed inset-0 z-50 bg-black/70 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 border border-rose-200 dark:border-rose-900 shadow-2xl text-center space-y-4">
+      <div class="w-14 h-14 bg-rose-100 dark:bg-rose-950/60 rounded-full flex items-center justify-center text-rose-600 dark:text-rose-400 text-2xl mx-auto">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="font-extrabold text-slate-900 dark:text-white text-base">Tüm Verileri Sıfırla</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Tüm sorularınız ve deneme verileriniz kalıcı olarak silinecektir. Devam etmek için aşağıya <strong>SIFIRLA</strong> yazın.</p>
+      
+      <input type="text" id="resetConfirmInput" placeholder="SIFIRLA" class="w-full px-3.5 py-2 rounded-xl border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs text-center font-bold outline-none" />
+
+      <div class="flex justify-center gap-2 pt-2">
+        <button onclick="closeResetDataModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl">İptal</button>
+        <button onclick="executeResetData()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow">Kalıcı Olarak Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION JAVASCRIPT ENGINE -->
+  <script>
+    // --- STORAGE ENGINE (IndexedDB with LocalStorage Fallback) ---
+    const DB_NAME = 'BiDahaBakDB_v1';
+    let dbInstance = null;
+
+    function initStorageEngine() {
+      return new Promise((resolve) => {
+        if (!window.indexedDB) {
+          console.warn("IndexedDB not available, using localStorage fallback.");
+          resolve(false);
+          return;
+        }
+
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('users')) db.createObjectStore('users', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('questions')) db.createObjectStore('questions', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('exams')) db.createObjectStore('exams', { keyPath: 'id' });
+        };
+        request.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          if (navigator.storage && navigator.storage.persist) {
+            navigator.storage.persist().catch(() => {});
+          }
+          resolve(true);
+        };
+        request.onerror = () => {
+          console.warn("IndexedDB access error. Falling back to localStorage.");
+          resolve(false);
+        };
+      });
+    }
+
+    async function dbGet(storeName, id) {
+      if (dbInstance) {
+        return new Promise((resolve) => {
+          const tx = dbInstance.transaction(storeName, 'readonly');
+          const req = tx.objectStore(storeName).get(id);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        });
+      } else {
+        const data = localStorage.getItem(`bdb_${storeName}_${id}`);
+        return data ? JSON.parse(data) : null;
+      }
+    }
+
+    async function dbGetAll(storeName, userId) {
+      if (dbInstance) {
+        return new Promise((resolve) => {
+          const tx = dbInstance.transaction(storeName, 'readonly');
+          const req = tx.objectStore(storeName).getAll();
+          req.onsuccess = () => {
+            const list = req.result || [];
+            resolve(userId ? list.filter(item => item.userId === userId) : list);
+          };
+          req.onerror = () => resolve([]);
+        });
+      } else {
+        const allKeys = Object.keys(localStorage).filter(k => k.startsWith(`bdb_${storeName}_`));
+        const list = allKeys.map(k => JSON.parse(localStorage.getItem(k))).filter(Boolean);
+        return userId ? list.filter(item => item.userId === userId) : list;
+      }
+    }
+
+    async function dbPut(storeName, item) {
+      if (dbInstance) {
+        return new Promise((resolve) => {
+          const tx = dbInstance.transaction(storeName, 'readwrite');
+          const req = tx.objectStore(storeName).put(item);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => resolve(false);
+        });
+      } else {
+        localStorage.setItem(`bdb_${storeName}_${item.id}`, JSON.stringify(item));
+        return true;
+      }
+    }
+
+    async function dbDelete(storeName, id) {
+      if (dbInstance) {
+        return new Promise((resolve) => {
+          const tx = dbInstance.transaction(storeName, 'readwrite');
+          const req = tx.objectStore(storeName).delete(id);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => resolve(false);
+        });
+      } else {
+        localStorage.removeItem(`bdb_${storeName}_${id}`);
+        return true;
+      }
+    }
+
+    // --- CRYPTO AUTHENTICATION ---
+    async function hashPassword(password) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password + "_bidahabak_salt_2026");
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // --- GLOBAL APP STATE ---
+    let currentUser = null;
+    let authMode = 'login'; // 'login' or 'register'
+    let questionsList = [];
+    let examsList = [];
+    let compressedQuestionBase64 = "";
+
+    // Chart instances
+    let chartProgressInstance = null;
+    let chartSubjectInstance = null;
+
+    // --- INITIALIZATION ---
+    window.onload = async function() {
+      await initStorageEngine();
+      applyThemeFromStorage();
+      checkActiveSession();
+    };
+
+    // --- THEME ENGINE ---
+    function applyThemeFromStorage() {
+      const savedTheme = localStorage.getItem('bidahabak_theme') || 'light';
+      setTheme(savedTheme, false);
+    }
+
+    function setTheme(theme, save = true) {
+      const isDark = theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      if (save) localStorage.setItem('bidahabak_theme', theme);
+
+      // Icons & Buttons
+      const headerIcon = document.getElementById('headerThemeIcon');
+      if (headerIcon) headerIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-600';
+
+      const lightCheck = document.getElementById('themeIconLightCheck');
+      const darkCheck = document.getElementById('themeIconDarkCheck');
+      if (lightCheck && darkCheck) {
+        lightCheck.classList.toggle('hidden', isDark);
+        darkCheck.classList.toggle('hidden', !isDark);
+      }
+
+      // Re-render charts for adaptive colors
+      if (currentUser) renderCharts();
+    }
+
+    function toggleTheme() {
+      const isCurrentlyDark = document.documentElement.classList.contains('dark');
+      setTheme(isCurrentlyDark ? 'light' : 'dark');
+    }
+
+    // --- AUTH UI HANDLERS ---
+    function toggleAuthMode(mode) {
+      authMode = mode;
+      const loginBtn = document.getElementById('authTabLoginBtn');
+      const registerBtn = document.getElementById('authTabRegisterBtn');
+      const fieldNameGroup = document.getElementById('fieldNameGroup');
+      const passwordMeter = document.getElementById('passwordStrengthBar');
+      const btnText = document.getElementById('btnAuthText');
+
+      if (mode === 'login') {
+        loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm";
+        registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+        fieldNameGroup.classList.add('hidden');
+        passwordMeter.classList.add('hidden');
+        btnText.innerText = "Giriş Yap";
+      } else {
+        registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm";
+        loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+        fieldNameGroup.classList.remove('hidden');
+        passwordMeter.classList.remove('hidden');
+        btnText.innerText = "Hesap Oluştur ve Başla";
+      }
+      hideAuthNotice();
+    }
+
+    function togglePasswordVisibility(inputId, eyeId) {
+      const input = document.getElementById(inputId);
+      const eye = document.getElementById(eyeId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.className = 'fa-solid fa-eye-slash text-xs';
+      } else {
+        input.type = 'password';
+        eye.className = 'fa-solid fa-eye text-xs';
+      }
+    }
+
+    function checkPasswordStrength(val) {
+      if (authMode !== 'register') return;
+      const bar = document.getElementById('strengthIndicator');
+      const label = document.getElementById('strengthLabel');
+      
+      let score = 0;
+      if (val.length >= 6) score += 33;
+      if (/[A-Z]/.test(val) || /[0-9]/.test(val)) score += 33;
+      if (/[^A-Za-z0-9]/.test(val) && val.length >= 8) score += 34;
+
+      bar.style.width = score + '%';
+      if (score <= 33) {
+        bar.className = 'h-full bg-rose-500 transition-all duration-300';
+        label.innerText = 'Zayıf Şifre';
+      } else if (score <= 66) {
+        bar.className = 'h-full bg-amber-500 transition-all duration-300';
+        label.innerText = 'Orta Güçte Şifre';
+      } else {
+        bar.className = 'h-full bg-emerald-500 transition-all duration-300';
+        label.innerText = 'Güçlü Şifre';
+      }
+    }
+
+    function showAuthNotice(msg) {
+      const notice = document.getElementById('authNotice');
+      const text = document.getElementById('authNoticeText');
+      notice.classList.remove('hidden');
+      text.innerText = msg;
+    }
+
+    function hideAuthNotice() {
+      document.getElementById('authNotice').classList.add('hidden');
+    }
+
+    // --- AUTH LOGIC ---
+    async function checkActiveSession() {
+      const activeId = localStorage.getItem('bidahabak_session_user');
+      if (activeId) {
+        const user = await dbGet('users', activeId);
+        if (user) {
+          loginUserSession(user);
+          return;
+        }
+      }
+      showAuthScreen();
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim().toLowerCase();
+      const password = document.getElementById('authPassword').value;
+
+      // RFC Basic Email Check
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showAuthNotice("Geçerli bir e-posta adresi giriniz.");
+        return;
+      }
+
+      const passwordHash = await hashPassword(password);
+      const userId = 'user_' + btoa(email).replace(/=/g, '');
+
+      if (authMode === 'register') {
+        const displayName = document.getElementById('authDisplayName').value.trim() || email.split('@')[0];
+        const existing = await dbGet('users', userId);
+        if (existing) {
+          showAuthNotice("Bu e-posta adresiyle zaten kayıtlı bir hesap var. Giriş yapabilirsiniz.");
+          return;
+        }
+
+        const newUser = {
+          id: userId,
+          email: email,
+          displayName: displayName,
+          passwordHash: passwordHash,
+          createdAt: new Date().toISOString()
+        };
+
+        await dbPut('users', newUser);
+        showToast(`Hesabınız oluşturuldu. Hoş geldiniz, ${displayName}!`);
+        loginUserSession(newUser);
+      } else {
+        // Login Mode
+        const user = await dbGet('users', userId);
+        if (!user || user.passwordHash !== passwordHash) {
+          showAuthNotice("E-posta adresi veya şifre hatalı.");
+          return;
+        }
+        showToast(`Tekrar hoş geldiniz, ${user.displayName}!`);
+        loginUserSession(user);
+      }
+    }
+
+    async function handleGuestLogin() {
+      const guestId = 'guest_user';
+      let guestUser = await dbGet('users', guestId);
+      if (!guestUser) {
+        guestUser = {
+          id: guestId,
+          email: 'misafir@bidahabak.app',
+          displayName: 'Misafir Öğrenci',
+          passwordHash: '',
+          createdAt: new Date().toISOString()
+        };
+        await dbPut('users', guestUser);
+      }
+      loginUserSession(guestUser);
+      showToast("Misafir oturumu açıldı.");
+    }
+
+    function loginUserSession(userObj) {
+      currentUser = userObj;
+      localStorage.setItem('bidahabak_session_user', userObj.id);
+
+      // DOM Info Update
+      document.getElementById('userNameDisplay').innerText = userObj.displayName;
+      document.getElementById('userAvatarPill').innerText = userObj.displayName.charAt(0).toUpperCase();
+      document.getElementById('settingsUserDisplay').innerText = userObj.displayName;
+      document.getElementById('settingsEmailDisplay').innerText = userObj.email;
+
+      // Toggle Screens
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainHeader').classList.remove('hidden');
+      document.getElementById('appContent').classList.remove('hidden');
+
+      loadUserData();
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      localStorage.removeItem('bidahabak_session_user');
+      showAuthScreen();
+      showToast("Oturum kapatıldı.");
+    }
+
+    function showAuthScreen() {
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('mainHeader').classList.add('hidden');
+      document.getElementById('appContent').classList.add('hidden');
+    }
+
+    // --- DATA LOADING & SYNC ---
+    async function loadUserData() {
+      if (!currentUser) return;
+      questionsList = await dbGetAll('questions', currentUser.id);
+      examsList = await dbGetAll('exams', currentUser.id);
+
+      // Sort exams by date ascending
+      examsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      updateDashboardStats();
+      renderQuestionsArchive();
+      renderExamsTable();
+      switchTab('dashboard');
+    }
+
+    // --- NAVIGATION ENGINE ---
+    function switchTab(tabName) {
+      const tabs = ['dashboard', 'addQuestion', 'archive', 'exams', 'settings'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (el) el.classList.add('hidden');
+
+        const desktopBtn = document.getElementById(`nav-${t}`);
+        const mobileBtn = document.getElementById(`mnav-${t}`);
+
+        if (desktopBtn) {
+          desktopBtn.className = "px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-600/50";
+        }
+        if (mobileBtn) {
+          mobileBtn.className = "flex-1 py-1.5 text-center text-xs font-medium text-slate-500 dark:text-slate-400";
+        }
+      });
+
+      const targetTab = document.getElementById(`tab-${tabName}`);
+      if (targetTab) targetTab.classList.remove('hidden');
+
+      const activeDesktop = document.getElementById(`nav-${tabName}`);
+      const activeMobile = document.getElementById(`mnav-${tabName}`);
+
+      if (activeDesktop) {
+        activeDesktop.className = "px-3.5 py-2 text-xs font-semibold rounded-lg transition-all text-brand-700 dark:text-brand-300 bg-white dark:bg-slate-800 shadow-sm";
+      }
+      if (activeMobile) {
+        activeMobile.className = "flex-1 py-1.5 text-center text-xs font-bold text-brand-600 dark:text-brand-400";
+      }
+
+      if (tabName === 'dashboard') {
+        renderCharts();
+      }
+    }
+
+    // --- CANVAS IMAGE COMPRESSION ENGINE ---
+    function handleQuestionImageSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showCustomAlert("Lütfen sadece resim dosyası seçiniz.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 900; // Max canvas dimension for fast storage
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          compressedQuestionBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+          document.getElementById('uploadPlaceholder').classList.add('hidden');
+          document.getElementById('uploadPreviewContainer').classList.remove('hidden');
+          document.getElementById('uploadPreviewImg').src = compressedQuestionBase64;
+        };
+        img.onerror = function() {
+          showCustomAlert("Görsel okunamadı veya desteklenmeyen formatta.");
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearQuestionImage() {
+      compressedQuestionBase64 = "";
+      document.getElementById('qCamInput').value = "";
+      document.getElementById('qGalleryInput').value = "";
+      document.getElementById('uploadPlaceholder').classList.remove('hidden');
+      document.getElementById('uploadPreviewContainer').classList.add('hidden');
+      document.getElementById('uploadPreviewImg').src = "";
+    }
+
+    // --- QUESTION CREATION ---
+    async function handleSaveQuestion(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      if (!compressedQuestionBase64) {
+        showCustomAlert("Lütfen bir soru fotoğrafı ekleyin.");
+        return;
+      }
+
+      const subject = document.getElementById('qSubject').value;
+      const reason = document.getElementById('qReason').value;
+      const topic = document.getElementById('qTopic').value.trim();
+      const correctAnswer = document.getElementById('qCorrectAnswer').value.trim();
+      const notes = document.getElementById('qNotes').value.trim();
+
+      const newQuestion = {
+        id: 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        userId: currentUser.id,
+        subject,
+        reason,
+        topic,
+        correctAnswer,
+        notes,
+        imageUrl: compressedQuestionBase64,
+        isLearned: false,
+        createdAt: new Date().toISOString()
+      };
+
+      await dbPut('questions', newQuestion);
+      questionsList.push(newQuestion);
+
+      e.target.reset();
+      clearQuestionImage();
+
+      updateDashboardStats();
+      renderQuestionsArchive();
+      showToast("Yanlış soru defterinize eklendi!");
+      switchTab('archive');
+    }
+
+    async function toggleQuestionLearned(qId, currentStatus) {
+      const q = questionsList.find(item => item.id === qId);
+      if (!q) return;
+
+      q.isLearned = !currentStatus;
+      await dbPut('questions', q);
+
+      updateDashboardStats();
+      renderQuestionsArchive();
+      showToast(q.isLearned ? "Soru 'Öğrendim' olarak işaretlendi!" : "Soru tekrar öğrenilecekler arasına alındı.");
+    }
+
+    function deleteQuestion(qId) {
+      showCustomConfirm(
+        "Soruyu Sil",
+        "Bu yanlış soruyu defterinizden silmek istediğinize emin misiniz?",
+        async () => {
+          await dbDelete('questions', qId);
+          questionsList = questionsList.filter(q => q.id !== qId);
+          updateDashboardStats();
+          renderQuestionsArchive();
+          showToast("Soru defterinizden silindi.");
+        }
+      );
+    }
+
+    // --- ARCHIVE RENDER ENGINE ---
+    function renderQuestionsArchive() {
+      const container = document.getElementById('questionsGrid');
+      const emptyState = document.getElementById('questionsEmptyState');
+
+      const searchQuery = document.getElementById('archiveSearch').value.toLowerCase();
+      const subjectFilter = document.getElementById('filterSubject').value;
+      const reasonFilter = document.getElementById('filterReason').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      const filtered = questionsList.filter(q => {
+        const matchesSearch = (q.topic || '').toLowerCase().includes(searchQuery) || (q.notes || '').toLowerCase().includes(searchQuery);
+        const matchesSubject = subjectFilter === 'ALL' || q.subject === subjectFilter;
+        const matchesReason = reasonFilter === 'ALL' || q.reason === reasonFilter;
+        const matchesStatus = statusFilter === 'ALL' 
+          || (statusFilter === 'LEARNED' && q.isLearned) 
+          || (statusFilter === 'UNLEARNED' && !q.isLearned);
+
+        return matchesSearch && matchesSubject && matchesReason && matchesStatus;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      container.innerHTML = filtered.map(q => {
+        const statusBadge = q.isLearned
+          ? `<span class="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-check"></i> Öğrendim</span>`
+          : `<span class="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-clock"></i> Öğrenilecek</span>`;
+
+        return `
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="relative bg-slate-100 dark:bg-slate-900 h-48 flex items-center justify-center overflow-hidden cursor-pointer group" onclick="openLightbox('${q.imageUrl}', '${q.subject}', '${q.topic || ''}')">
+                <img src="${q.imageUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-bold text-xs gap-2">
+                  <i class="fa-solid fa-magnifying-glass-plus text-base"></i> Fotoğrafı Büyüt
+                </div>
+              </div>
+
+              <div class="p-4 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[10px] font-black text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/50 px-2.5 py-0.5 rounded-md border border-brand-200 dark:border-brand-800">${q.subject}</span>
+                  ${statusBadge}
+                </div>
+
+                <h4 class="font-bold text-slate-800 dark:text-white text-xs truncate" title="${q.topic || 'Genel Konu'}">${q.topic || 'Konu Belirtilmedi'}</h4>
+
+                <div class="text-[11px] text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1">
+                  <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Nedeni: ${q.reason}
+                </div>
+
+                ${q.correctAnswer ? `<p class="text-[11px] text-slate-500 dark:text-slate-400">Doğru Cevap: <strong class="text-slate-800 dark:text-slate-200">${q.correctAnswer}</strong></p>` : ''}
+                ${q.notes ? `<p class="text-[11px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/60 italic line-clamp-3">"${q.notes}"</p>` : ''}
+              </div>
+            </div>
+
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between gap-2">
+              <button onclick="toggleQuestionLearned('${q.id}', ${q.isLearned})" class="text-[11px] font-bold px-3 py-1.5 rounded-xl transition ${q.isLearned ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'}">
+                ${q.isLearned ? 'Tekrar Öğrenilecek Yap' : 'Öğrendim!'}
+              </button>
+
+              <button onclick="deleteQuestion('${q.id}')" class="text-slate-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 transition text-xs" title="Sil">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- EXAM MANAGEMENT ENGINE ---
+    function openExamModal() {
+      document.getElementById('examDate').valueAsDate = new Date();
+      document.getElementById('examModal').classList.remove('hidden');
+    }
+
+    function closeExamModal() {
+      document.getElementById('examModal').classList.add('hidden');
+    }
+
+    async function handleSaveExam(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const type = document.getElementById('examType').value;
+      const name = document.getElementById('examName').value.trim();
+      const date = document.getElementById('examDate').value;
+      const score = parseFloat(document.getElementById('examScore').value);
+      const percentile = parseFloat(document.getElementById('examPercentile').value);
+      const netVal = document.getElementById('examNet').value;
+      const totalNet = netVal !== '' ? parseFloat(netVal) : null;
+
+      const newExam = {
+        id: 'ex_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        userId: currentUser.id,
+        type,
+        name,
+        date,
+        score,
+        percentile,
+        totalNet,
+        createdAt: new Date().toISOString()
+      };
+
+      await dbPut('exams', newExam);
+      examsList.push(newExam);
+      examsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      closeExamModal();
+      e.target.reset();
+
+      updateDashboardStats();
+      renderExamsTable();
+      showToast("Deneme sınavı kaydı eklendi!");
+    }
+
+    function deleteExam(eId) {
+      showCustomConfirm(
+        "Deneme Sil",
+        "Bu deneme kaydını silmek istediğinize emin misiniz?",
+        async () => {
+          await dbDelete('exams', eId);
+          examsList = examsList.filter(e => e.id !== eId);
+          updateDashboardStats();
+          renderExamsTable();
+          showToast("Deneme kaydı silindi.");
+        }
+      );
+    }
+
+    function renderExamsTable() {
+      const tbody = document.getElementById('examTableBody');
+      const emptyState = document.getElementById('examsEmptyState');
+
+      if (examsList.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      tbody.innerHTML = examsList.map((ex, idx) => {
+        let diffIndicator = `<span class="text-slate-400 font-medium">-</span>`;
+        if (idx > 0) {
+          const prev = examsList[idx - 1];
+          const scoreDiff = ex.score - prev.score;
+          if (scoreDiff > 0) {
+            diffIndicator = `<span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> +${scoreDiff.toFixed(1)} Puan</span>`;
+          } else if (scoreDiff < 0) {
+            diffIndicator = `<span class="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1"><i class="fa-solid fa-arrow-trend-down"></i> ${scoreDiff.toFixed(1)} Puan</span>`;
+          } else {
+            diffIndicator = `<span class="text-slate-400 font-bold">Sabit</span>`;
+          }
+        }
+
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition">
+            <td class="p-4 font-bold text-slate-800 dark:text-white">
+              <span class="inline-block bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800 text-[10px] font-black px-2 py-0.5 rounded-md uppercase mr-2">${ex.type}</span>
+              ${ex.name}
+            </td>
+            <td class="p-4 text-slate-600 dark:text-slate-300 font-medium">${new Date(ex.date).toLocaleDateString('tr-TR')}</td>
+            <td class="p-4 font-black text-brand-700 dark:text-brand-300">${ex.score.toFixed(2)}</td>
+            <td class="p-4 font-bold text-slate-700 dark:text-slate-200">%${ex.percentile.toFixed(2)}</td>
+            <td class="p-4 font-semibold text-slate-700 dark:text-slate-300">${ex.totalNet !== null ? ex.totalNet.toFixed(2) : '-'}</td>
+            <td class="p-4">${diffIndicator}</td>
+            <td class="p-4 text-right">
+              <button onclick="deleteExam('${ex.id}')" class="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition p-1">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // --- DASHBOARD & STATS ENGINE ---
+    function updateDashboardStats() {
+      const learnedCount = questionsList.filter(q => q.isLearned).length;
+      document.getElementById('statTotalQuestions').innerText = questionsList.length;
+      document.getElementById('statLearnedQuestions').innerText = learnedCount;
+      document.getElementById('statUnlearnedQuestions').innerText = questionsList.length - learnedCount;
+      document.getElementById('statTotalExams').innerText = examsList.length;
+
+      if (examsList.length > 0) {
+        const latest = examsList[examsList.length - 1];
+        document.getElementById('statLatestScore').innerText = latest.score.toFixed(1);
+        document.getElementById('statLatestPercentile').innerText = `%${latest.percentile.toFixed(2)}`;
+        document.getElementById('statLastExamDate').innerText = new Date(latest.date).toLocaleDateString('tr-TR');
+      } else {
+        document.getElementById('statLatestScore').innerText = '-';
+        document.getElementById('statLatestPercentile').innerText = '-';
+        document.getElementById('statLastExamDate').innerText = '-';
+      }
+
+      // Calculate Top Error Subject
+      if (questionsList.length > 0) {
+        const counts = {};
+        questionsList.forEach(q => counts[q.subject] = (counts[q.subject] || 0) + 1);
+        let maxSub = 'Yok';
+        let maxCount = 0;
+        for (const sub in counts) {
+          if (counts[sub] > maxCount) {
+            maxCount = counts[sub];
+            maxSub = sub;
+          }
+        }
+        document.getElementById('statTopErrorSubject').innerText = `${maxSub} (${maxCount} soru)`;
+      } else {
+        document.getElementById('statTopErrorSubject').innerText = 'Henüz Veri Yok';
+      }
+
+      renderCharts();
+    }
+
+    function renderCharts() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+
+      // 1. Line Chart: Exam Progress
+      const progressCanvas = document.getElementById('chartExamProgress');
+      const progressEmpty = document.getElementById('chartExamEmpty');
+
+      if (examsList.length === 0) {
+        progressEmpty.classList.remove('hidden');
+      } else {
+        progressEmpty.classList.add('hidden');
+        const labels = examsList.map(e => `${e.name} (${new Date(e.date).toLocaleDateString('tr-TR', {month:'short', day:'numeric'})})`);
+        const scores = examsList.map(e => e.score);
+
+        if (chartProgressInstance) chartProgressInstance.destroy();
+
+        chartProgressInstance = new Chart(progressCanvas, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Sınav Puanı',
+              data: scores,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.12)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              y: { 
+                grid: { color: gridColor },
+                ticks: { color: textColor, font: { size: 10 } }
+              },
+              x: { 
+                grid: { display: false },
+                ticks: { color: textColor, font: { size: 10 } }
+              }
+            }
+          }
+        });
+      }
+
+      // 2. Doughnut Chart: Subject Errors
+      const subjectCanvas = document.getElementById('chartSubjectErrors');
+      const subjectEmpty = document.getElementById('chartSubjectEmpty');
+
+      if (questionsList.length === 0) {
+        subjectEmpty.classList.remove('hidden');
+      } else {
+        subjectEmpty.classList.add('hidden');
+        const counts = {};
+        questionsList.forEach(q => counts[q.subject] = (counts[q.subject] || 0) + 1);
+
+        const labels = Object.keys(counts);
+        const data = Object.values(counts);
+
+        if (chartSubjectInstance) chartSubjectInstance.destroy();
+
+        chartSubjectInstance = new Chart(subjectCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: [
+                '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', 
+                '#f43f5e', '#f97316', '#eab308', '#10b981', '#14b8a6'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { 
+                position: 'right', 
+                labels: { boxWidth: 10, color: textColor, font: { size: 11 } } 
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // --- CHANGE PASSWORD LOGIC ---
+    function openChangePasswordModal() {
+      document.getElementById('cpOldPassword').value = '';
+      document.getElementById('cpNewPassword').value = '';
+      document.getElementById('changePasswordModal').classList.remove('hidden');
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.add('hidden');
+    }
+
+    async function handleChangePasswordSubmit(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const oldPass = document.getElementById('cpOldPassword').value;
+      const newPass = document.getElementById('cpNewPassword').value;
+
+      const oldHash = await hashPassword(oldPass);
+      if (currentUser.passwordHash && currentUser.passwordHash !== oldHash) {
+        showCustomAlert("Mevcut şifreniz hatalı.");
+        return;
+      }
+
+      const newHash = await hashPassword(newPass);
+      currentUser.passwordHash = newHash;
+      await dbPut('users', currentUser);
+
+      closeChangePasswordModal();
+      showToast("Şifreniz başarıyla güncellendi.");
+    }
+
+    // --- BACKUP & RESTORE (JSON EXPORT/IMPORT) ---
+    function exportUserDataJSON() {
+      if (!currentUser) return;
+      const backupObj = {
+        version: "2.0",
+        app: "Bi'DahaBak",
+        user: { displayName: currentUser.displayName, email: currentUser.email },
+        questions: questionsList,
+        exams: examsList,
+        exportedAt: new Date().toISOString()
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateTag = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `bidahabak_backup_${dateTag}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("Yedek dosyası indirildi.");
+    }
+
+    function importUserDataJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          if (!imported.questions || !imported.exams) {
+            showCustomAlert("Geçersiz yedek dosyası yapısı.");
+            return;
+          }
+
+          showCustomConfirm(
+            "Yedek Yükle",
+            "Mevcut verilerinizin üzerine yedeklenen sorular ve denemeler eklenecektir. Devam etsin mi?",
+            async () => {
+              for (const q of imported.questions) {
+                q.userId = currentUser.id;
+                await dbPut('questions', q);
+              }
+              for (const ex of imported.exams) {
+                ex.userId = currentUser.id;
+                await dbPut('exams', ex);
+              }
+              await loadUserData();
+              showToast("Yedek veriler başarıyla içe aktarıldı!");
+            }
+          );
+        } catch (err) {
+          showCustomAlert("JSON dosyası okunamadı veya bozuk.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // --- DATA RESET LOGIC ---
+    function openResetDataModal() {
+      document.getElementById('resetConfirmInput').value = '';
+      document.getElementById('resetDataModal').classList.remove('hidden');
+    }
+
+    function closeResetDataModal() {
+      document.getElementById('resetDataModal').classList.add('hidden');
+    }
+
+    async function executeResetData() {
+      const confirmVal = document.getElementById('resetConfirmInput').value.trim();
+      if (confirmVal !== 'SIFIRLA') {
+        showCustomAlert("Lütfen silme işlemini onaylamak için tam olarak SIFIRLA yazın.");
+        return;
+      }
+
+      for (const q of questionsList) await dbDelete('questions', q.id);
+      for (const ex of examsList) await dbDelete('exams', ex.id);
+
+      questionsList = [];
+      examsList = [];
+
+      closeResetDataModal();
+      updateDashboardStats();
+      renderQuestionsArchive();
+      renderExamsTable();
+      showToast("Tüm verileriniz kalıcı olarak silindi.");
+    }
+
+    // --- CUSTOM MODAL DIALOGS (Zero Native Alert/Confirm) ---
+    function showCustomAlert(msg) {
+      showCustomConfirm("Bilgilendirme", msg, null, false);
+    }
+
+    function showCustomConfirm(title, msg, onOk, isConfirm = true) {
+      const modal = document.getElementById('customConfirmModal');
+      document.getElementById('confirmModalTitle').innerText = title;
+      document.getElementById('confirmModalMessage').innerText = msg;
+
+      const btnOk = document.getElementById('btnConfirmOk');
+      const btnCancel = document.getElementById('btnConfirmCancel');
+
+      if (!isConfirm) {
+        btnCancel.classList.add('hidden');
+        btnOk.innerText = "Tamam";
+      } else {
+        btnCancel.classList.remove('hidden');
+        btnOk.innerText = "Evet, Devam Et";
+      }
+
+      btnOk.onclick = () => {
+        modal.classList.add('hidden');
+        if (onOk) onOk();
+      };
+      btnCancel.onclick = () => {
+        modal.classList.add('hidden');
+      };
+
+      modal.classList.remove('hidden');
+    }
+
+    // --- LIGHTBOX ENGINE ---
+    function openLightbox(url, subject = '', topic = '') {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('lightboxDetails').innerHTML = `<strong>${subject}</strong> ${topic ? '&bull; ' + topic : ''}`;
+      document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.add('hidden');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('appToast');
+      const text = document.getElementById('appToastMessage');
+      text.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
+
+    // Global Key Bindings
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+        closeExamModal();
+        closeChangePasswordModal();
+        closeResetDataModal();
+      }
+    });
+  </script>
+</body>
+</html>
