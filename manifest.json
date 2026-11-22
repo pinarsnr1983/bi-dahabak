@@ -2,13 +2,27 @@
   "background_color": "#ffffff",
   "dir": "ltr",
   "display": "standalone",
-  "name": "Bi-dahabak",
+  "name": "Bi'DahaBak",
   "orientation": "any",
   "scope": "/bi-dahabak/",
-  "short_name": "Bi-dahabak",
+  "short_name": "Bi'DahaBak",
   "start_url": "/bi-dahabak/",
-  "theme_color": "#ffffff",
-  "id": "Bi-dahabak",
-  "description": "Bi-dahabak yanlış defterim",
-  "lang": "tr"
+  "theme_color": "#2563eb",
+  "id": "/bi-dahabak/",
+  "description": "Bi'DahaBak akıllı yanlış defteri ve sınav takibi",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
