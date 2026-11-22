@@ -11,7 +11,7 @@ Bi'DahaBak - Kurulum Rehberi
    Chrome'da sağ üstteki üç nokta (⋮) menüsünden "Kaydet ve paylaş > Bi'DahaBak uygulamasını yükle"
    (veya "Uygulama olarak yükle") seçeneğine tıkla.
 4) Açılan pencerede "Yükle" butonuna bas.
-
+Buradan Video ile yapabilrisiniz https://youtu.be/c13OQIJdlAc?si=gkDkItY6NGzFF4SG
 Doğrulama: Başlat menüsünde ve masaüstünde Bi'DahaBak ayrı bir uygulama penceresi olarak açılır.
 
 
