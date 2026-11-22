@@ -25,6 +25,8 @@ Buradan bakarak video ile yapabilrisiniz https://youtu.be/c13OQIJdlAc?si=gkDkItY
 
 Doğrulama: Uygulama menüsünde Bi'DahaBak simgesi görünür ve açıldığında uygulama çalışır.
 
+Yada drive linkden indirin https://drive.google.com/file/d/1iG_v_cs2r99anAwFlVrflhqC0jTZuLFM/view?usp=sharing 
+
 
 3. Başka Bir Bilgisayarla Paylaşım Notu
 --------------------------------------
