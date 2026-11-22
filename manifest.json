@@ -1,0 +1,14 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Bi-dahabak",
+  "orientation": "any",
+  "scope": "/bi-dahabak/",
+  "short_name": "Bi-dahabak",
+  "start_url": "/bi-dahabak/",
+  "theme_color": "#ffffff",
+  "id": "Bi-dahabak",
+  "description": "Bi-dahabak yanlış defterim",
+  "lang": "tr"
+}
