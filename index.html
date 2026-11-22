@@ -97,6 +97,11 @@
 
       <!-- Quick Controls & User Pill -->
       <div class="flex items-center gap-2">
+        <!-- Cloud Sync Status Badge -->
+        <span id="cloudSyncBadge" title="Bulut Senkronizasyonu Aktif" class="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+          <i class="fa-solid fa-cloud text-[10px]"></i> Bulut Aktif
+        </span>
+
         <!-- Quick Theme Toggle -->
         <button onclick="toggleTheme()" title="Tema Değiştir" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center transition border border-slate-200 dark:border-slate-600">
           <i id="headerThemeIcon" class="fa-solid fa-moon text-sm"></i>
@@ -147,7 +152,7 @@
           <i class="fa-solid fa-rotate-left"></i>
         </div>
         <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Bi'DahaBak</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Yanlış yaptığın soruları biriktir, tekrar et ve sınav netlerini yükselt!</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mobil ve PC'den aynı hesapla gir, yanlış defterin hep yanında olsun!</p>
       </div>
 
       <!-- Auth Toggle Tabs (Giriş Yap / Kaydol) -->
@@ -183,9 +188,14 @@
           </div>
         </div>
 
-        <!-- Password with Eye Toggle -->
+        <!-- Password with Eye Toggle & Forgot Password -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Şifre *</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Şifre *</label>
+            <button type="button" id="btnForgotPassword" onclick="openForgotPasswordModal()" class="text-[11px] font-semibold text-brand-600 dark:text-brand-400 hover:underline">
+              Şifremi Unuttum?
+            </button>
+          </div>
           <div class="relative">
             <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
             <input type="password" id="authPassword" oninput="checkPasswordStrength(this.value)" placeholder="••••••••" class="w-full pl-9 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-brand-500 outline-none transition" required minlength="6" />
@@ -330,7 +340,7 @@
           <h2 class="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
             <i class="fa-solid fa-camera-retro text-brand-600 dark:text-brand-400"></i> Yeni Yanlış Soru Ekle
           </h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Soru fotoğrafını çekin veya seçin, hata nedeninizi ve çözüm notlarınızı kaydedin.</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Soru fotoğrafını çekin veya seçin, bulut hesabınıza kaydedip hem telefon hem PC'den görün.</p>
         </div>
 
         <form onsubmit="handleSaveQuestion(event)" class="space-y-5">
@@ -405,7 +415,7 @@
                     <i class="fa-solid fa-images"></i> Galeriden Seç
                   </button>
                 </div>
-                <p class="text-[10px] text-slate-400">Otomatik hafifletme ve sıkıştırma aktiftir.</p>
+                <p class="text-[10px] text-slate-400">Otomatik bulut sıkıştırması ve cihazlar arası eşitleme aktiftir.</p>
               </div>
 
               <!-- Compressed Preview State -->
@@ -580,17 +590,22 @@
       <!-- Account & Security Section -->
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
         <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-          <i class="fa-solid fa-user-shield text-indigo-600 dark:text-indigo-400"></i> Hesap Güvenliği
+          <i class="fa-solid fa-user-shield text-indigo-600 dark:text-indigo-400"></i> Hesap Güvenliği & Bulut Eşitleme
         </h3>
 
-        <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/60 flex items-center justify-between">
+        <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/60 flex flex-wrap gap-3 items-center justify-between">
           <div>
             <p id="settingsUserDisplay" class="text-xs font-bold text-slate-800 dark:text-white">Öğrenci</p>
             <p id="settingsEmailDisplay" class="text-[11px] text-slate-500 dark:text-slate-400">ogrenci@example.com</p>
           </div>
-          <button onclick="openChangePasswordModal()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-white font-bold text-xs rounded-xl transition">
-            Şifre Değiştir
-          </button>
+          <div class="flex gap-2">
+            <button onclick="sendResetEmailFromSettings()" class="px-3.5 py-2 bg-brand-100 dark:bg-brand-950/60 hover:bg-brand-200 text-brand-700 dark:text-brand-300 font-bold text-xs rounded-xl transition">
+              Sıfırlama E-postası Gönder
+            </button>
+            <button onclick="openChangePasswordModal()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-500 text-slate-800 dark:text-white font-bold text-xs rounded-xl transition">
+              Şifre Değiştir
+            </button>
+          </div>
         </div>
       </div>
 
@@ -599,7 +614,7 @@
         <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
           <i class="fa-solid fa-database text-emerald-600 dark:text-emerald-400"></i> Veri Yedeği Al & Yükle
         </h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Sorularınızı ve deneme netlerinizi cihazınız dışına aktarabilir veya yedekten geri yükleyebilirsiniz.</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Verileriniz bulutta otomatik eşitlenir; isterseniz ek güvenlik için JSON yedeği de indirebilirsiniz.</p>
 
         <div class="flex flex-wrap gap-3">
           <button onclick="exportUserDataJSON()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
@@ -618,7 +633,7 @@
         <h3 class="font-bold text-rose-800 dark:text-rose-300 text-sm flex items-center gap-2">
           <i class="fa-solid fa-triangle-exclamation"></i> Tehlikeli Bölge
         </h3>
-        <p class="text-xs text-rose-700 dark:text-rose-400">Hesabınıza ait tüm soru ve deneme verilerini kalıcı olarak siler.</p>
+        <p class="text-xs text-rose-700 dark:text-rose-400">Hesabınıza ait tüm soru ve deneme verilerini buluttan kalıcı olarak siler.</p>
         <button onclick="openResetDataModal()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow transition">
           Tüm Verilerimi Sıfırla
         </button>
@@ -626,12 +641,41 @@
 
       <!-- App Footer -->
       <div class="text-center pt-4 text-xs text-slate-400">
-        <p>Bi'DahaBak v2.0 &bull; Akıllı Çalışma Platformu</p>
+        <p>Bi'DahaBak v2.1 Cloud &bull; Akıllı Çalışma Platformu</p>
         <p class="mt-1 text-[11px]">Yapımcılar: Aren</p>
       </div>
 
     </section>
   </main>
+
+  <!-- CUSTOM MODAL: FORGOT PASSWORD -->
+  <div id="forgotPasswordModal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <h3 class="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+          <i class="fa-solid fa-key text-brand-600"></i> Şifremi Unuttum
+        </h3>
+        <button onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400">Kayıtlı e-posta adresinizi girin; yeni şifre oluşturma bağlantısını doğrudan e-posta kutunuza gönderelim.</p>
+
+      <form onsubmit="handleForgotPasswordSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">E-Posta Adresiniz *</label>
+          <input type="email" id="fpEmailInput" required placeholder="ogrenci@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-brand-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeForgotPasswordModal()" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl">İptal</button>
+          <button type="submit" id="btnFpSubmit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow flex items-center gap-1.5">
+            <i class="fa-solid fa-paper-plane"></i> Sıfırlama E-postası Gönder
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- CUSTOM MODAL: LIGHTBOX -->
   <div id="lightboxModal" class="fixed inset-0 z-50 bg-black/85 hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeLightbox()">
@@ -730,7 +774,7 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODAL: CONFIRM DIALOG (Replaces alert/confirm) -->
+  <!-- CUSTOM MODAL: CONFIRM DIALOG -->
   <div id="customConfirmModal" class="fixed inset-0 z-50 bg-black/60 hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-700 shadow-2xl text-center space-y-4">
       <div class="w-14 h-14 bg-amber-100 dark:bg-amber-950/60 rounded-full flex items-center justify-center text-amber-600 dark:text-amber-400 text-2xl mx-auto">
@@ -753,7 +797,7 @@
         <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
       <h3 class="font-extrabold text-slate-900 dark:text-white text-base">Tüm Verileri Sıfırla</h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400">Tüm sorularınız ve deneme verileriniz kalıcı olarak silinecektir. Devam etmek için aşağıya <strong>SIFIRLA</strong> yazın.</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Tüm sorularınız ve deneme verileriniz buluttan kalıcı olarak silinecektir. Devam etmek için aşağıya <strong>SIFIRLA</strong> yazın.</p>
       
       <input type="text" id="resetConfirmInput" placeholder="SIFIRLA" class="w-full px-3.5 py-2 rounded-xl border border-rose-300 dark:border-rose-700 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-xs text-center font-bold outline-none" />
 
@@ -764,109 +808,46 @@
     </div>
   </div>
 
-  <!-- APPLICATION JAVASCRIPT ENGINE -->
-  <script>
-    // --- STORAGE ENGINE (IndexedDB with LocalStorage Fallback) ---
-    const DB_NAME = 'BiDahaBakDB_v1';
-    let dbInstance = null;
+  <!-- APPLICATION JAVASCRIPT ENGINE WITH FIREBASE CLOUD SYNC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
+      updateProfile,
+      updatePassword,
+      reauthenticateWithCredential,
+      EmailAuthProvider,
+      signInAnonymously,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      deleteDoc,
+      query,
+      where,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    function initStorageEngine() {
-      return new Promise((resolve) => {
-        if (!window.indexedDB) {
-          console.warn("IndexedDB not available, using localStorage fallback.");
-          resolve(false);
-          return;
-        }
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOsn5zTaYQsbJjIha1U772oIQIUWQYQs8",
+      authDomain: "bi-dahabak.firebaseapp.com",
+      projectId: "bi-dahabak",
+      storageBucket: "bi-dahabak.firebasestorage.app",
+      messagingSenderId: "151237817887",
+      appId: "1:151237817887:web:ee6534734f996a3832872a",
+      measurementId: "G-912H59FQZL"
+    };[cite: 4]
 
-        const request = indexedDB.open(DB_NAME, 1);
-        request.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('users')) db.createObjectStore('users', { keyPath: 'id' });
-          if (!db.objectStoreNames.contains('questions')) db.createObjectStore('questions', { keyPath: 'id' });
-          if (!db.objectStoreNames.contains('exams')) db.createObjectStore('exams', { keyPath: 'id' });
-        };
-        request.onsuccess = (e) => {
-          dbInstance = e.target.result;
-          if (navigator.storage && navigator.storage.persist) {
-            navigator.storage.persist().catch(() => {});
-          }
-          resolve(true);
-        };
-        request.onerror = () => {
-          console.warn("IndexedDB access error. Falling back to localStorage.");
-          resolve(false);
-        };
-      });
-    }
-
-    async function dbGet(storeName, id) {
-      if (dbInstance) {
-        return new Promise((resolve) => {
-          const tx = dbInstance.transaction(storeName, 'readonly');
-          const req = tx.objectStore(storeName).get(id);
-          req.onsuccess = () => resolve(req.result || null);
-          req.onerror = () => resolve(null);
-        });
-      } else {
-        const data = localStorage.getItem(`bdb_${storeName}_${id}`);
-        return data ? JSON.parse(data) : null;
-      }
-    }
-
-    async function dbGetAll(storeName, userId) {
-      if (dbInstance) {
-        return new Promise((resolve) => {
-          const tx = dbInstance.transaction(storeName, 'readonly');
-          const req = tx.objectStore(storeName).getAll();
-          req.onsuccess = () => {
-            const list = req.result || [];
-            resolve(userId ? list.filter(item => item.userId === userId) : list);
-          };
-          req.onerror = () => resolve([]);
-        });
-      } else {
-        const allKeys = Object.keys(localStorage).filter(k => k.startsWith(`bdb_${storeName}_`));
-        const list = allKeys.map(k => JSON.parse(localStorage.getItem(k))).filter(Boolean);
-        return userId ? list.filter(item => item.userId === userId) : list;
-      }
-    }
-
-    async function dbPut(storeName, item) {
-      if (dbInstance) {
-        return new Promise((resolve) => {
-          const tx = dbInstance.transaction(storeName, 'readwrite');
-          const req = tx.objectStore(storeName).put(item);
-          req.onsuccess = () => resolve(true);
-          req.onerror = () => resolve(false);
-        });
-      } else {
-        localStorage.setItem(`bdb_${storeName}_${item.id}`, JSON.stringify(item));
-        return true;
-      }
-    }
-
-    async function dbDelete(storeName, id) {
-      if (dbInstance) {
-        return new Promise((resolve) => {
-          const tx = dbInstance.transaction(storeName, 'readwrite');
-          const req = tx.objectStore(storeName).delete(id);
-          req.onsuccess = () => resolve(true);
-          req.onerror = () => resolve(false);
-        });
-      } else {
-        localStorage.removeItem(`bdb_${storeName}_${id}`);
-        return true;
-      }
-    }
-
-    // --- CRYPTO AUTHENTICATION ---
-    async function hashPassword(password) {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(password + "_bidahabak_salt_2026");
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     // --- GLOBAL APP STATE ---
     let currentUser = null;
@@ -875,16 +856,37 @@
     let examsList = [];
     let compressedQuestionBase64 = "";
 
+    let unsubscribeQuestions = null;
+    let unsubscribeExams = null;
+
     // Chart instances
     let chartProgressInstance = null;
     let chartSubjectInstance = null;
 
     // --- INITIALIZATION ---
-    window.onload = async function() {
-      await initStorageEngine();
+    window.addEventListener('DOMContentLoaded', () => {
       applyThemeFromStorage();
-      checkActiveSession();
-    };
+    });
+
+    // Listen to Firebase Auth state across Mobile & PC
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = {
+          id: user.uid,
+          email: user.email || 'misafir@bidahabak.app',
+          displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'Misafir Öğrenci'),
+          isAnonymous: user.isAnonymous
+        };
+        loginUserSession(currentUser);
+      } else {
+        if (unsubscribeQuestions) { unsubscribeQuestions(); unsubscribeQuestions = null; }
+        if (unsubscribeExams) { unsubscribeExams(); unsubscribeExams = null; }
+        currentUser = null;
+        questionsList = [];
+        examsList = [];
+        showAuthScreen();
+      }
+    });
 
     // --- THEME ENGINE ---
     function applyThemeFromStorage() {
@@ -892,12 +894,11 @@
       setTheme(savedTheme, false);
     }
 
-    function setTheme(theme, save = true) {
+    window.setTheme = function(theme, save = true) {
       const isDark = theme === 'dark';
       document.documentElement.classList.toggle('dark', isDark);
       if (save) localStorage.setItem('bidahabak_theme', theme);
 
-      // Icons & Buttons
       const headerIcon = document.getElementById('headerThemeIcon');
       if (headerIcon) headerIcon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-600';
 
@@ -908,41 +909,43 @@
         darkCheck.classList.toggle('hidden', !isDark);
       }
 
-      // Re-render charts for adaptive colors
       if (currentUser) renderCharts();
-    }
+    };
 
-    function toggleTheme() {
+    window.toggleTheme = function() {
       const isCurrentlyDark = document.documentElement.classList.contains('dark');
       setTheme(isCurrentlyDark ? 'light' : 'dark');
-    }
+    };
 
     // --- AUTH UI HANDLERS ---
-    function toggleAuthMode(mode) {
+    window.toggleAuthMode = function(mode) {
       authMode = mode;
       const loginBtn = document.getElementById('authTabLoginBtn');
       const registerBtn = document.getElementById('authTabRegisterBtn');
       const fieldNameGroup = document.getElementById('fieldNameGroup');
       const passwordMeter = document.getElementById('passwordStrengthBar');
       const btnText = document.getElementById('btnAuthText');
+      const forgotBtn = document.getElementById('btnForgotPassword');
 
       if (mode === 'login') {
         loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm";
         registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
         fieldNameGroup.classList.add('hidden');
         passwordMeter.classList.add('hidden');
+        forgotBtn.classList.remove('hidden');
         btnText.innerText = "Giriş Yap";
       } else {
         registerBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition bg-white dark:bg-slate-800 text-brand-700 dark:text-brand-300 shadow-sm";
         loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
         fieldNameGroup.classList.remove('hidden');
         passwordMeter.classList.remove('hidden');
+        forgotBtn.classList.add('hidden');
         btnText.innerText = "Hesap Oluştur ve Başla";
       }
       hideAuthNotice();
-    }
+    };
 
-    function togglePasswordVisibility(inputId, eyeId) {
+    window.togglePasswordVisibility = function(inputId, eyeId) {
       const input = document.getElementById(inputId);
       const eye = document.getElementById(eyeId);
       if (input.type === 'password') {
@@ -952,9 +955,9 @@
         input.type = 'password';
         eye.className = 'fa-solid fa-eye text-xs';
       }
-    }
+    };
 
-    function checkPasswordStrength(val) {
+    window.checkPasswordStrength = function(val) {
       if (authMode !== 'register') return;
       const bar = document.getElementById('strengthIndicator');
       const label = document.getElementById('strengthLabel');
@@ -975,7 +978,7 @@
         bar.className = 'h-full bg-emerald-500 transition-all duration-300';
         label.innerText = 'Güçlü Şifre';
       }
-    }
+    };
 
     function showAuthNotice(msg) {
       const notice = document.getElementById('authNotice');
@@ -988,106 +991,113 @@
       document.getElementById('authNotice').classList.add('hidden');
     }
 
-    // --- AUTH LOGIC ---
-    async function checkActiveSession() {
-      const activeId = localStorage.getItem('bidahabak_session_user');
-      if (activeId) {
-        const user = await dbGet('users', activeId);
-        if (user) {
-          loginUserSession(user);
-          return;
-        }
-      }
-      showAuthScreen();
-    }
-
-    async function handleAuthSubmit(e) {
+    // --- FIREBASE AUTH LOGIC (GİRİŞ / KAYIT / ŞİFREMİ UNUTTUM) ---
+    window.handleAuthSubmit = async function(e) {
       e.preventDefault();
       const email = document.getElementById('authEmail').value.trim().toLowerCase();
       const password = document.getElementById('authPassword').value;
+      const submitBtn = document.getElementById('btnAuthSubmit');
 
-      // RFC Basic Email Check
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         showAuthNotice("Geçerli bir e-posta adresi giriniz.");
         return;
       }
 
-      const passwordHash = await hashPassword(password);
-      const userId = 'user_' + btoa(email).replace(/=/g, '');
+      submitBtn.disabled = true;
+      hideAuthNotice();
 
-      if (authMode === 'register') {
-        const displayName = document.getElementById('authDisplayName').value.trim() || email.split('@')[0];
-        const existing = await dbGet('users', userId);
-        if (existing) {
-          showAuthNotice("Bu e-posta adresiyle zaten kayıtlı bir hesap var. Giriş yapabilirsiniz.");
-          return;
+      try {
+        if (authMode === 'register') {
+          const displayName = document.getElementById('authDisplayName').value.trim() || email.split('@')[0];
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(cred.user, { displayName: displayName });
+          showToast(`Hesabınız oluşturuldu. Hoş geldiniz, ${displayName}!`);
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+          showToast("Giriş başarılı! Bulut verileriniz eşitleniyor...");
         }
+      } catch (err) {
+        let errMsg = "İşlem sırasında bir hata oluştu.";
+        if (err.code === 'auth/email-already-in-use') errMsg = "Bu e-posta adresi zaten kayıtlı. Giriş yapabilir veya Şifremi Unuttum seçeneğini kullanabilirsiniz.";
+        else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') errMsg = "E-posta adresi veya şifre hatalı.";
+        else if (err.code === 'auth/weak-password') errMsg = "Şifreniz en az 6 karakter olmalıdır.";
+        else if (err.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.') errMsg = "Firebase API anahtarı hatalı. Lütfen koddaki firebaseConfig alanını kontrol edin.";
+        showAuthNotice(errMsg);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    };
 
-        const newUser = {
-          id: userId,
-          email: email,
-          displayName: displayName,
-          passwordHash: passwordHash,
-          createdAt: new Date().toISOString()
-        };
+    window.openForgotPasswordModal = function() {
+      const currentEmail = document.getElementById('authEmail').value.trim();
+      document.getElementById('fpEmailInput').value = currentEmail;
+      document.getElementById('forgotPasswordModal').classList.remove('hidden');
+    };
 
-        await dbPut('users', newUser);
-        showToast(`Hesabınız oluşturuldu. Hoş geldiniz, ${displayName}!`);
-        loginUserSession(newUser);
-      } else {
-        // Login Mode
-        const user = await dbGet('users', userId);
-        if (!user || user.passwordHash !== passwordHash) {
-          showAuthNotice("E-posta adresi veya şifre hatalı.");
-          return;
+    window.closeForgotPasswordModal = function() {
+      document.getElementById('forgotPasswordModal').classList.add('hidden');
+    };
+
+    window.handleForgotPasswordSubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('fpEmailInput').value.trim().toLowerCase();
+      if (!email) return;
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        closeForgotPasswordModal();
+        showAuthNotice(`Şifre sıfırlama bağlantısı ${email} adresine gönderildi! Gelen kutunuzu ve spam klasörünü kontrol edin.`);
+      } catch (err) {
+        closeForgotPasswordModal();
+        if (err.code === 'auth/user-not-found') {
+          showAuthNotice("Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.");
+        } else {
+          showAuthNotice("Sıfırlama e-postası gönderilemedi: " + err.message);
         }
-        showToast(`Tekrar hoş geldiniz, ${user.displayName}!`);
-        loginUserSession(user);
       }
-    }
+    };
 
-    async function handleGuestLogin() {
-      const guestId = 'guest_user';
-      let guestUser = await dbGet('users', guestId);
-      if (!guestUser) {
-        guestUser = {
-          id: guestId,
-          email: 'misafir@bidahabak.app',
-          displayName: 'Misafir Öğrenci',
-          passwordHash: '',
-          createdAt: new Date().toISOString()
-        };
-        await dbPut('users', guestUser);
+    window.sendResetEmailFromSettings = async function() {
+      if (!currentUser || currentUser.isAnonymous) {
+        showCustomAlert("Misafir hesaplarında e-posta ile şifre sıfırlama yapılamaz.");
+        return;
       }
-      loginUserSession(guestUser);
-      showToast("Misafir oturumu açıldı.");
-    }
+      try {
+        await sendPasswordResetEmail(auth, currentUser.email);
+        showToast(`Şifre sıfırlama bağlantısı ${currentUser.email} adresine gönderildi!`);
+      } catch (err) {
+        showCustomAlert("E-posta gönderilemedi: " + err.message);
+      }
+    };
+
+    window.handleGuestLogin = async function() {
+      try {
+        await signInAnonymously(auth);
+        showToast("Misafir oturumu açıldı.");
+      } catch (err) {
+        showAuthNotice("Misafir girişi başlatılamadı: " + err.message);
+      }
+    };
 
     function loginUserSession(userObj) {
-      currentUser = userObj;
-      localStorage.setItem('bidahabak_session_user', userObj.id);
-
-      // DOM Info Update
       document.getElementById('userNameDisplay').innerText = userObj.displayName;
       document.getElementById('userAvatarPill').innerText = userObj.displayName.charAt(0).toUpperCase();
       document.getElementById('settingsUserDisplay').innerText = userObj.displayName;
       document.getElementById('settingsEmailDisplay').innerText = userObj.email;
 
-      // Toggle Screens
       document.getElementById('authScreen').classList.add('hidden');
       document.getElementById('mainHeader').classList.remove('hidden');
       document.getElementById('appContent').classList.remove('hidden');
 
-      loadUserData();
+      startRealtimeCloudSync();
+      switchTab('dashboard');
     }
 
-    function handleLogout() {
-      currentUser = null;
-      localStorage.removeItem('bidahabak_session_user');
-      showAuthScreen();
+    window.handleLogout = async function() {
+      await signOut(auth);
       showToast("Oturum kapatıldı.");
-    }
+    };
 
     function showAuthScreen() {
       document.getElementById('authScreen').classList.remove('hidden');
@@ -1095,23 +1105,36 @@
       document.getElementById('appContent').classList.add('hidden');
     }
 
-    // --- DATA LOADING & SYNC ---
-    async function loadUserData() {
+    // --- REALTIME CLOUD SYNC (MOBİL + PC CANLI EŞİTLEME) ---
+    function startRealtimeCloudSync() {
       if (!currentUser) return;
-      questionsList = await dbGetAll('questions', currentUser.id);
-      examsList = await dbGetAll('exams', currentUser.id);
 
-      // Sort exams by date ascending
-      examsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (unsubscribeQuestions) unsubscribeQuestions();
+      if (unsubscribeExams) unsubscribeExams();
 
-      updateDashboardStats();
-      renderQuestionsArchive();
-      renderExamsTable();
-      switchTab('dashboard');
+      const qQuery = query(collection(db, 'questions'), where('userId', '==', currentUser.id));
+      unsubscribeQuestions = onSnapshot(qQuery, (snapshot) => {
+        questionsList = snapshot.docs.map(d => d.data());
+        questionsList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        updateDashboardStats();
+        renderQuestionsArchive();
+      }, (error) => {
+        console.error("Sorular senkronizasyon hatası:", error);
+      });
+
+      const exQuery = query(collection(db, 'exams'), where('userId', '==', currentUser.id));
+      unsubscribeExams = onSnapshot(exQuery, (snapshot) => {
+        examsList = snapshot.docs.map(d => d.data());
+        examsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+        updateDashboardStats();
+        renderExamsTable();
+      }, (error) => {
+        console.error("Denemeler senkronizasyon hatası:", error);
+      });
     }
 
     // --- NAVIGATION ENGINE ---
-    function switchTab(tabName) {
+    window.switchTab = function(tabName) {
       const tabs = ['dashboard', 'addQuestion', 'archive', 'exams', 'settings'];
       tabs.forEach(t => {
         const el = document.getElementById(`tab-${t}`);
@@ -1144,10 +1167,10 @@
       if (tabName === 'dashboard') {
         renderCharts();
       }
-    }
+    };
 
-    // --- CANVAS IMAGE COMPRESSION ENGINE ---
-    function handleQuestionImageSelect(e) {
+    // --- CANVAS IMAGE COMPRESSION ENGINE (CLOUD OPTIMIZED) ---
+    window.handleQuestionImageSelect = function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -1161,7 +1184,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const maxDim = 900; // Max canvas dimension for fast storage
+          const maxDim = 800;
           let width = img.width;
           let height = img.height;
 
@@ -1182,7 +1205,7 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          compressedQuestionBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          compressedQuestionBase64 = canvas.toDataURL('image/jpeg', 0.68);
 
           document.getElementById('uploadPlaceholder').classList.add('hidden');
           document.getElementById('uploadPreviewContainer').classList.remove('hidden');
@@ -1194,19 +1217,19 @@
         img.src = evt.target.result;
       };
       reader.readAsDataURL(file);
-    }
+    };
 
-    function clearQuestionImage() {
+    window.clearQuestionImage = function() {
       compressedQuestionBase64 = "";
       document.getElementById('qCamInput').value = "";
       document.getElementById('qGalleryInput').value = "";
       document.getElementById('uploadPlaceholder').classList.remove('hidden');
       document.getElementById('uploadPreviewContainer').classList.add('hidden');
       document.getElementById('uploadPreviewImg').src = "";
-    }
+    };
 
-    // --- QUESTION CREATION ---
-    async function handleSaveQuestion(e) {
+    // --- QUESTION CREATION (CLOUD) ---
+    window.handleSaveQuestion = async function(e) {
       e.preventDefault();
       if (!currentUser) return;
 
@@ -1215,14 +1238,18 @@
         return;
       }
 
+      const saveBtn = document.getElementById('btnSaveQuestion');
+      saveBtn.disabled = true;
+
       const subject = document.getElementById('qSubject').value;
       const reason = document.getElementById('qReason').value;
       const topic = document.getElementById('qTopic').value.trim();
       const correctAnswer = document.getElementById('qCorrectAnswer').value.trim();
       const notes = document.getElementById('qNotes').value.trim();
 
+      const qId = 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
       const newQuestion = {
-        id: 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        id: qId,
         userId: currentUser.id,
         subject,
         reason,
@@ -1234,46 +1261,48 @@
         createdAt: new Date().toISOString()
       };
 
-      await dbPut('questions', newQuestion);
-      questionsList.push(newQuestion);
+      try {
+        await setDoc(doc(db, 'questions', qId), newQuestion);
+        e.target.reset();
+        clearQuestionImage();
+        showToast("Soru buluta kaydedildi! Tüm cihazlarınızda güncellendi.");
+        switchTab('archive');
+      } catch (err) {
+        showCustomAlert("Buluta kaydedilirken hata oluştu: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+      }
+    };
 
-      e.target.reset();
-      clearQuestionImage();
-
-      updateDashboardStats();
-      renderQuestionsArchive();
-      showToast("Yanlış soru defterinize eklendi!");
-      switchTab('archive');
-    }
-
-    async function toggleQuestionLearned(qId, currentStatus) {
+    window.toggleQuestionLearned = async function(qId, currentStatus) {
       const q = questionsList.find(item => item.id === qId);
       if (!q) return;
 
-      q.isLearned = !currentStatus;
-      await dbPut('questions', q);
+      try {
+        await setDoc(doc(db, 'questions', qId), { ...q, isLearned: !currentStatus });
+        showToast(!currentStatus ? "Soru 'Öğrendim' olarak işaretlendi!" : "Soru tekrar öğrenilecekler arasına alındı.");
+      } catch (err) {
+        showCustomAlert("Güncelleme hatası: " + err.message);
+      }
+    };
 
-      updateDashboardStats();
-      renderQuestionsArchive();
-      showToast(q.isLearned ? "Soru 'Öğrendim' olarak işaretlendi!" : "Soru tekrar öğrenilecekler arasına alındı.");
-    }
-
-    function deleteQuestion(qId) {
+    window.deleteQuestion = function(qId) {
       showCustomConfirm(
         "Soruyu Sil",
-        "Bu yanlış soruyu defterinizden silmek istediğinize emin misiniz?",
+        "Bu yanlış soruyu tüm cihazlarınızdan silmek istediğinize emin misiniz?",
         async () => {
-          await dbDelete('questions', qId);
-          questionsList = questionsList.filter(q => q.id !== qId);
-          updateDashboardStats();
-          renderQuestionsArchive();
-          showToast("Soru defterinizden silindi.");
+          try {
+            await deleteDoc(doc(db, 'questions', qId));
+            showToast("Soru bulut defterinizden silindi.");
+          } catch (err) {
+            showCustomAlert("Silme hatası: " + err.message);
+          }
         }
       );
-    }
+    };
 
     // --- ARCHIVE RENDER ENGINE ---
-    function renderQuestionsArchive() {
+    window.renderQuestionsArchive = function() {
       const container = document.getElementById('questionsGrid');
       const emptyState = document.getElementById('questionsEmptyState');
 
@@ -1344,19 +1373,19 @@
           </div>
         `;
       }).join('');
-    }
+    };
 
-    // --- EXAM MANAGEMENT ENGINE ---
-    function openExamModal() {
+    // --- EXAM MANAGEMENT ENGINE (CLOUD) ---
+    window.openExamModal = function() {
       document.getElementById('examDate').valueAsDate = new Date();
       document.getElementById('examModal').classList.remove('hidden');
-    }
+    };
 
-    function closeExamModal() {
+    window.closeExamModal = function() {
       document.getElementById('examModal').classList.add('hidden');
-    }
+    };
 
-    async function handleSaveExam(e) {
+    window.handleSaveExam = async function(e) {
       e.preventDefault();
       if (!currentUser) return;
 
@@ -1368,8 +1397,9 @@
       const netVal = document.getElementById('examNet').value;
       const totalNet = netVal !== '' ? parseFloat(netVal) : null;
 
+      const exId = 'ex_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
       const newExam = {
-        id: 'ex_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        id: exId,
         userId: currentUser.id,
         type,
         name,
@@ -1380,33 +1410,32 @@
         createdAt: new Date().toISOString()
       };
 
-      await dbPut('exams', newExam);
-      examsList.push(newExam);
-      examsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+      try {
+        await setDoc(doc(db, 'exams', exId), newExam);
+        closeExamModal();
+        e.target.reset();
+        showToast("Deneme sınavı buluta kaydedildi!");
+      } catch (err) {
+        showCustomAlert("Deneme kaydedilemedi: " + err.message);
+      }
+    };
 
-      closeExamModal();
-      e.target.reset();
-
-      updateDashboardStats();
-      renderExamsTable();
-      showToast("Deneme sınavı kaydı eklendi!");
-    }
-
-    function deleteExam(eId) {
+    window.deleteExam = function(eId) {
       showCustomConfirm(
         "Deneme Sil",
         "Bu deneme kaydını silmek istediğinize emin misiniz?",
         async () => {
-          await dbDelete('exams', eId);
-          examsList = examsList.filter(e => e.id !== eId);
-          updateDashboardStats();
-          renderExamsTable();
-          showToast("Deneme kaydı silindi.");
+          try {
+            await deleteDoc(doc(db, 'exams', eId));
+            showToast("Deneme kaydı silindi.");
+          } catch (err) {
+            showCustomAlert("Silme hatası: " + err.message);
+          }
         }
       );
-    }
+    };
 
-    function renderExamsTable() {
+    window.renderExamsTable = function() {
       const tbody = document.getElementById('examTableBody');
       const emptyState = document.getElementById('examsEmptyState');
 
@@ -1451,7 +1480,7 @@
           </tr>
         `;
       }).join('');
-    }
+    };
 
     // --- DASHBOARD & STATS ENGINE ---
     function updateDashboardStats() {
@@ -1472,7 +1501,6 @@
         document.getElementById('statLastExamDate').innerText = '-';
       }
 
-      // Calculate Top Error Subject
       if (questionsList.length > 0) {
         const counts = {};
         questionsList.forEach(q => counts[q.subject] = (counts[q.subject] || 0) + 1);
@@ -1497,7 +1525,6 @@
       const textColor = isDark ? '#94a3b8' : '#64748b';
       const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
 
-      // 1. Line Chart: Exam Progress
       const progressCanvas = document.getElementById('chartExamProgress');
       const progressEmpty = document.getElementById('chartExamEmpty');
 
@@ -1529,24 +1556,15 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-              y: { 
-                grid: { color: gridColor },
-                ticks: { color: textColor, font: { size: 10 } }
-              },
-              x: { 
-                grid: { display: false },
-                ticks: { color: textColor, font: { size: 10 } }
-              }
+              y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } },
+              x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } }
             }
           }
         });
       }
 
-      // 2. Doughnut Chart: Subject Errors
       const subjectCanvas = document.getElementById('chartSubjectErrors');
       const subjectEmpty = document.getElementById('chartSubjectEmpty');
 
@@ -1578,53 +1596,51 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { 
-                position: 'right', 
-                labels: { boxWidth: 10, color: textColor, font: { size: 11 } } 
-              }
+              legend: { position: 'right', labels: { boxWidth: 10, color: textColor, font: { size: 11 } } }
             }
           }
         });
       }
     }
 
-    // --- CHANGE PASSWORD LOGIC ---
-    function openChangePasswordModal() {
+    // --- CHANGE PASSWORD LOGIC (FIREBASE AUTH) ---
+    window.openChangePasswordModal = function() {
       document.getElementById('cpOldPassword').value = '';
       document.getElementById('cpNewPassword').value = '';
       document.getElementById('changePasswordModal').classList.remove('hidden');
-    }
+    };
 
-    function closeChangePasswordModal() {
+    window.closeChangePasswordModal = function() {
       document.getElementById('changePasswordModal').classList.add('hidden');
-    }
+    };
 
-    async function handleChangePasswordSubmit(e) {
+    window.handleChangePasswordSubmit = async function(e) {
       e.preventDefault();
-      if (!currentUser) return;
+      const user = auth.currentUser;
+      if (!user || user.isAnonymous) {
+        showCustomAlert("Misafir hesaplarında şifre değiştirilemez.");
+        return;
+      }
 
       const oldPass = document.getElementById('cpOldPassword').value;
       const newPass = document.getElementById('cpNewPassword').value;
 
-      const oldHash = await hashPassword(oldPass);
-      if (currentUser.passwordHash && currentUser.passwordHash !== oldHash) {
-        showCustomAlert("Mevcut şifreniz hatalı.");
-        return;
+      try {
+        const credential = EmailAuthProvider.credential(user.email, oldPass);
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, newPass);
+        closeChangePasswordModal();
+        showToast("Şifreniz başarıyla güncellendi.");
+      } catch (err) {
+        showCustomAlert("Şifre güncellenemedi: Mevcut şifrenizi doğru girdiğinizden emin olun.");
       }
+    };
 
-      const newHash = await hashPassword(newPass);
-      currentUser.passwordHash = newHash;
-      await dbPut('users', currentUser);
-
-      closeChangePasswordModal();
-      showToast("Şifreniz başarıyla güncellendi.");
-    }
-
-    // --- BACKUP & RESTORE (JSON EXPORT/IMPORT) ---
-    function exportUserDataJSON() {
+    // --- BACKUP & RESTORE (JSON EXPORT/IMPORT TO CLOUD) ---
+    window.exportUserDataJSON = function() {
       if (!currentUser) return;
       const backupObj = {
-        version: "2.0",
+        version: "2.1",
         app: "Bi'DahaBak",
         user: { displayName: currentUser.displayName, email: currentUser.email },
         questions: questionsList,
@@ -1641,9 +1657,9 @@
       downloadAnchor.click();
       downloadAnchor.remove();
       showToast("Yedek dosyası indirildi.");
-    }
+    };
 
-    function importUserDataJSON(e) {
+    window.importUserDataJSON = function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -1658,18 +1674,17 @@
 
           showCustomConfirm(
             "Yedek Yükle",
-            "Mevcut verilerinizin üzerine yedeklenen sorular ve denemeler eklenecektir. Devam etsin mi?",
+            "Mevcut bulut verilerinizin üzerine yedeklenen sorular ve denemeler eklenecektir. Devam etsin mi?",
             async () => {
               for (const q of imported.questions) {
-                q.userId = currentUser.id;
-                await dbPut('questions', q);
+                const qId = q.id || ('q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5));
+                await setDoc(doc(db, 'questions', qId), { ...q, id: qId, userId: currentUser.id });
               }
               for (const ex of imported.exams) {
-                ex.userId = currentUser.id;
-                await dbPut('exams', ex);
+                const exId = ex.id || ('ex_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5));
+                await setDoc(doc(db, 'exams', exId), { ...ex, id: exId, userId: currentUser.id });
               }
-              await loadUserData();
-              showToast("Yedek veriler başarıyla içe aktarıldı!");
+              showToast("Yedek veriler bulut hesabınıza aktarıldı!");
             }
           );
         } catch (err) {
@@ -1677,44 +1692,38 @@
         }
       };
       reader.readAsText(file);
-    }
+    };
 
     // --- DATA RESET LOGIC ---
-    function openResetDataModal() {
+    window.openResetDataModal = function() {
       document.getElementById('resetConfirmInput').value = '';
       document.getElementById('resetDataModal').classList.remove('hidden');
-    }
+    };
 
-    function closeResetDataModal() {
+    window.closeResetDataModal = function() {
       document.getElementById('resetDataModal').classList.add('hidden');
-    }
+    };
 
-    async function executeResetData() {
+    window.executeResetData = async function() {
       const confirmVal = document.getElementById('resetConfirmInput').value.trim();
       if (confirmVal !== 'SIFIRLA') {
         showCustomAlert("Lütfen silme işlemini onaylamak için tam olarak SIFIRLA yazın.");
         return;
       }
 
-      for (const q of questionsList) await dbDelete('questions', q.id);
-      for (const ex of examsList) await dbDelete('exams', ex.id);
-
-      questionsList = [];
-      examsList = [];
+      for (const q of questionsList) await deleteDoc(doc(db, 'questions', q.id));
+      for (const ex of examsList) await deleteDoc(doc(db, 'exams', ex.id));
 
       closeResetDataModal();
-      updateDashboardStats();
-      renderQuestionsArchive();
-      renderExamsTable();
-      showToast("Tüm verileriniz kalıcı olarak silindi.");
-    }
+      showToast("Tüm verileriniz buluttan kalıcı olarak silindi.");
+    };
 
-    // --- CUSTOM MODAL DIALOGS (Zero Native Alert/Confirm) ---
-    function showCustomAlert(msg) {
+    // --- CUSTOM MODAL DIALOGS ---
+    window.showCustomAlert = function(msg) {
       showCustomConfirm("Bilgilendirme", msg, null, false);
-    }
+    };
 
-    function showCustomConfirm(title, msg, onOk, isConfirm = true) {
+    window.showCustomConfirm = function(title, msg, onOk, isConfirm = true) {
       const modal = document.getElementById('customConfirmModal');
       document.getElementById('confirmModalTitle').innerText = title;
       document.getElementById('confirmModalMessage').innerText = msg;
@@ -1739,20 +1748,20 @@
       };
 
       modal.classList.remove('hidden');
-    }
+    };
 
     // --- LIGHTBOX ENGINE ---
-    function openLightbox(url, subject = '', topic = '') {
+    window.openLightbox = function(url, subject = '', topic = '') {
       document.getElementById('lightboxImg').src = url;
       document.getElementById('lightboxDetails').innerHTML = `<strong>${subject}</strong> ${topic ? '&bull; ' + topic : ''}`;
       document.getElementById('lightboxModal').classList.remove('hidden');
-    }
+    };
 
-    function closeLightbox() {
+    window.closeLightbox = function() {
       document.getElementById('lightboxModal').classList.add('hidden');
-    }
+    };
 
-    function showToast(msg) {
+    window.showToast = function(msg) {
       const toast = document.getElementById('appToast');
       const text = document.getElementById('appToastMessage');
       text.innerText = msg;
@@ -1760,7 +1769,7 @@
       setTimeout(() => {
         toast.classList.add('hidden');
       }, 4000);
-    }
+    };
 
     // Global Key Bindings
     document.addEventListener('keydown', (e) => {
@@ -1769,6 +1778,7 @@
         closeExamModal();
         closeChangePasswordModal();
         closeResetDataModal();
+        closeForgotPasswordModal();
       }
     });
   </script>
