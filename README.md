@@ -30,3 +30,18 @@ Doğrulama: Uygulama menüsünde Bi'DahaBak simgesi görünür ve açıldığın
 --------------------------------------
 Tarayıcı üzerinden yüklenen kısayollar kullanıcı profiline bağlıdır. Başka bir bilgisayara
 kurmak için web adresini paylaşıp karşı tarafın kendi tarayıcısından yüklemesini sağla.
+--------------------------------------
+# Bi'DahaBak - Akıllı Yanlış Defteri & Deneme Takibi (iOS Rehberi)
+
+Bu rehber, **Bi'DahaBak** uygulamasını iPhone veya iPad cihazına (Safari üzerinden) eklemek ve hesap bilgilerinle bulut verilerini eşitlemek için hazırlanmıştır.
+
+## iOS (iPhone / iPad) Kurulum Adımları
+
+1. **Safari Tarayıcısından Açın:** iOS cihazınızda **Safari** uygulamasını açın ve `https://pinarsnr1983.github.io/bi-dahabak/` adresine gidin.
+2. **Paylaş Menüsünü Açın:** Ekranın alt kısmındaki (veya iPad'de üst kısımdaki) **Paylaş** (yukarı ok çıkan kare) simgesine dokunun.
+3. **Ana Ekrana Ekle Seçeneğini Kullanın:** Açılan menüde aşağı kaydırın ve **Ana Ekrana Ekle** (*Add to Home Screen*) seçeneğine dokunun.
+4. **Ekleme İşlemini Tamamlayın:** Uygulama adını kontrol edin ve sağ üstteki **Ekle** butonuna dokunun.
+
+**Doğrulama:** Ana ekranda **Bi'DahaBak** simgesi oluşur; simgeye dokunduğunuzda uygulama tam ekran bir uygulama penceresi gibi açılır.
+
+* **Giriş veya Kayıt:** Mevcut hesabınızla giriş yapabilir veya **Hesap Oluştur** sekmesinden yeni bir öğrenci hesabı açabilirsiniz.
